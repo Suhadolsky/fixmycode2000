@@ -100,24 +100,21 @@ class BatchExtraction(BaseModel):
     items: list[ErrorFixItem]
 
 
-def sanitize_single_query(query: str) -> str:
-    """Strictly removes compound connectors (&, and, +) and junk suffixes."""
+def sanitize_single_query(query: str, max_words: int = 8) -> str:
+    """Strictly removes compound connectors (&, and, +) and junk suffixes without truncating genuine part descriptions."""
     q = re.split(r"\s+(?:and|&|\+|with|or)\s+|,", query, flags=re.IGNORECASE)[0]
     for junk in [
         "Check Model Plate",
         "repair toolkit",
         "toolkit",
         "repair kit",
-        "set",
-        "kit",
         "appliance maintenance",
-        "appliance",
         "maintenance",
     ]:
         q = re.sub(re.escape(junk), "", q, flags=re.IGNORECASE)
     words = q.split()
-    if len(words) > 4:
-        q = " ".join(words[:4])
+    if len(words) > max_words:
+        q = " ".join(words[:max_words])
     return " ".join(q.split()).strip()
 
 

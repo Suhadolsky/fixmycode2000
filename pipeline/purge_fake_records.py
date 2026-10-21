@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 pipeline/purge_fake_records.py
-Purges all synthetic placeholder records from errors_db.json and cleans model_series.
+Loads data/errors_db.json, filters out synthetic junk/placeholder records,
+and saves the cleaned list back to disk and syncs it to site/src/data/errors_db.json.
 """
 
 import os
@@ -10,22 +11,22 @@ import json
 import urllib.parse
 from pathlib import Path
 
-AMAZON_TAG = "amazinrevie0a-20"
 BASE_DIR = Path(__file__).resolve().parent.parent
 DB_PATHS = [
     BASE_DIR / "data" / "errors_db.json",
     BASE_DIR / "site" / "src" / "data" / "errors_db.json",
 ]
 
+# Strict synthetic patterns
 FAKE_HVAC_RE = re.compile(r"^(HP|TH|LP|IPM|COM|MOT|EEV|REL|HS|BRD|TR|NUT|CBL|OPT|HAR)-\d{3}$", re.I)
 FAKE_OBD_RE = re.compile(r"^(MAF|IAT|STAT|O2|FPR|HPFP|IGN|SPK|INJ|WR|KS|CKP|CMP|CAT|VENT|CAP|VSS|IAC|OPS|ALT|TCM|TCC|WSS|CAN|EBCM)-\d{2}$", re.I)
 FAKE_OEM_RE = re.compile(r"^(OEM|PART)-\d+$", re.I)
-FAKE_PART_NAME_RE = re.compile(r"(Module|Sensor)\s+\d+$", re.I)
+FAKE_PART_NAME_RE = re.compile(r"(Module|Sensor)\s+\d+", re.I)
 
 def is_fake_record(item: dict) -> bool:
     oem = str(item.get("oem_part_number", "")).strip()
     part = str(item.get("primary_part_name", "")).strip()
-    
+
     if FAKE_HVAC_RE.match(oem):
         return True
     if FAKE_OBD_RE.match(oem):
@@ -37,7 +38,6 @@ def is_fake_record(item: dict) -> bool:
     return False
 
 def clean_model_series(model: str) -> str:
-    # Strip parenthetical descriptions like (VANOS Solenoid, ...)
     cleaned = re.sub(r"\(.*?\)", "", model).strip()
     cleaned = re.sub(r"\s+", " ", cleaned).strip()
     return cleaned
@@ -64,16 +64,19 @@ def build_part_search_url(brand: str, oem: str, part: str, model: str) -> tuple[
         s_model = model.split("/")[0].strip() if "/" in model else model
         query = f"{brand} {s_model} {c_part} replacement"
 
-    # Enforce maximum 8 words without cutting off part name
+    # Enforce generous limit of 8-10 words max
     words = query.split()
     if len(words) > 8:
         query = " ".join(words[:8])
-    
-    url = f"https://www.amazon.com/s?k={urllib.parse.quote_plus(query)}&tag={AMAZON_TAG}"
+
+    url = f"https://www.amazon.com/s?k={urllib.parse.quote_plus(query)}&tag=amazinrevie0a-20"
     return url, query
 
 def purge_and_clean():
     src_path = DB_PATHS[0]
+    if not src_path.exists():
+        src_path = BASE_DIR / "fixmycode" / "data" / "errors_db.json"
+
     with open(src_path, "r", encoding="utf-8") as f:
         records = json.load(f)
 
@@ -85,12 +88,12 @@ def purge_and_clean():
         if is_fake_record(item):
             purged_count += 1
             continue
-        
+
         # Clean model_series
         orig_model = item.get("model_series", "")
         item["model_series"] = clean_model_series(orig_model)
 
-        # Build clean 8-word Amazon part search URL
+        # Build clean Amazon search query (8 words max, no truncation of real names)
         part_url, part_query = build_part_search_url(
             item.get("brand", ""),
             item.get("oem_part_number", ""),
@@ -101,16 +104,22 @@ def purge_and_clean():
         item["primary_part_affiliate_url"] = part_url
         item["primary_part_search_query"] = part_query
 
+        # Ensure no hallucinated ASINs or cart bundle links
+        item["asin_part"] = None
+        item["asin_tool"] = None
+        item["asin_consumable"] = None
+        item["has_asin_bundle"] = False
+        item["bundle_cart_url"] = None
+
         surviving.append(item)
 
-    print(f"Total before purge: {total_before}")
-    print(f"Purged synthetic records: {purged_count}")
-    print(f"Surviving authentic records: {len(surviving)}")
+    print(f"Purged {purged_count} fake records. Remaining verified records: {len(surviving)}")
 
     for path in DB_PATHS:
+        path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(surviving, f, indent=2, ensure_ascii=False)
-        print(f"Saved clean records to {path}")
+        print(f"Saved {len(surviving)} verified records to {path}")
 
 if __name__ == "__main__":
     purge_and_clean()
