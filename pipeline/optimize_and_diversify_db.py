@@ -27,6 +27,14 @@ def make_clean_search_urls(brand: str, oem: str, part: str, tool: str, consumabl
         part_query = f"{brand} {c_part}".strip()
         bundle_query = f"{brand} {c_part} repair kit".strip()
         
+    p_words = part_query.split()
+    if len(p_words) > 8:
+        part_query = " ".join(p_words[:8])
+
+    b_words = bundle_query.split()
+    if len(b_words) > 8:
+        bundle_query = " ".join(b_words[:8])
+
     part_url = f"https://www.amazon.com/s?k={urllib.parse.quote_plus(part_query)}&tag={AMAZON_TAG}"
     bundle_url = f"https://www.amazon.com/s?k={urllib.parse.quote_plus(bundle_query)}&tag={AMAZON_TAG}"
     tool_url = f"https://www.amazon.com/s?k={urllib.parse.quote_plus(tool.strip())}&tag={AMAZON_TAG}"

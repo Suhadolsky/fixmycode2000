@@ -60,10 +60,10 @@ def clean_tool_name(s: str) -> str:
     return first
 
 
-def clean_query(s: str, is_tool: bool = False, max_words: int = 4) -> str:
+def clean_query(s: str, is_tool: bool = False, max_words: int = 8) -> str:
     """
     Cleans search queries by stripping connectors, removing filler words from the end,
-    and enforcing max word count for tool queries.
+    and enforcing max word count (up to 8 words) for queries.
     """
     if not s:
         return s
@@ -87,11 +87,10 @@ def clean_query(s: str, is_tool: bool = False, max_words: int = 4) -> str:
                 s = s[: m.start()].strip()
                 changed = True
 
-    if is_tool:
-        # Enforce maximum words
-        words = s.split()
-        if len(words) > max_words:
-            s = " ".join(words[:max_words])
+    # Enforce maximum 8 words
+    words = s.split()
+    if len(words) > max_words:
+        s = " ".join(words[:max_words])
 
     return s.strip()
 
@@ -112,16 +111,39 @@ def clean_database(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         orig_cons_query = item.get("consumable_search_query", "")
 
         cleaned_tool_name = clean_tool_name(orig_tool_name)
-        cleaned_tool_query = clean_query(orig_tool_query, is_tool=True, max_words=4)
-        cleaned_cons_query = clean_query(orig_cons_query, is_tool=False)
+        cleaned_tool_query = clean_query(orig_tool_query, is_tool=True, max_words=8)
+        cleaned_cons_query = clean_query(orig_cons_query, is_tool=False, max_words=8)
 
-        part_query = item.get("primary_part_search_query", "").strip()
+        # High-converting 8-word max part query
+        brand = item.get("brand", "").strip()
+        oem = str(item.get("oem_part_number", "")).strip()
+        part_name = item.get("primary_part_name", "").strip()
+        clean_part = re.sub(r"\(.*?\)", "", part_name).strip()
+        clean_part = re.sub(r"\s+", " ", clean_part)
+        model = item.get("model_series", "").strip()
+
+        has_real_oem = (
+            oem
+            and len(oem) >= 4
+            and not any(fake in oem.upper() for fake in ["CHECK", "MODEL", "PLATE", "UNKNOWN", "N/A"])
+        )
+
+        if has_real_oem:
+            part_query = f"{brand} {oem} {clean_part}"
+        else:
+            s_model = model.split("/")[0].strip() if "/" in model else model
+            part_query = f"{brand} {s_model} {clean_part} replacement"
+
+        p_words = part_query.split()
+        if len(p_words) > 8:
+            part_query = " ".join(p_words[:8])
 
         # Regenerate URLs
         part_url = build_amazon_search_url(part_query)
         tool_url = build_amazon_search_url(cleaned_tool_query)
         cons_url = build_amazon_search_url(cleaned_cons_query)
 
+        item["primary_part_search_query"] = part_query
         item["required_tool_name"] = cleaned_tool_name
         item["required_tool_search_query"] = cleaned_tool_query
         item["consumable_search_query"] = cleaned_cons_query
