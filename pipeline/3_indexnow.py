@@ -47,7 +47,7 @@ REQUEST_TIMEOUT = 15
 def load_environment() -> tuple[str, str]:
     """Load and validate required environment variables."""
     load_dotenv(BASE_DIR / ".env")
-    key = os.getenv("INDEXNOW_KEY", "").strip()
+    key = os.getenv("INDEXNOW_KEY", "fixmycode2026abc1").strip()
     domain = os.getenv("SITE_DOMAIN", "https://gettinytool.com").strip().rstrip("/")
     return key, domain
 
