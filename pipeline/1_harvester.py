@@ -39,13 +39,39 @@ DATA_DIR = BASE_DIR / "data"
 RAW_PDFS_DIR = DATA_DIR / "raw_pdfs"
 PROCESSED_HASHES_FILE = DATA_DIR / "processed_hashes.json"
 
-# Default Target Brands & Equipment Categories
+# High-Ticket Equipment Categories (Targeting $45 - $250 Replacement Parts)
 DEFAULT_TARGETS: List[str] = [
-    "Pentair pool heater",
-    "Bosch dishwasher",
-    "Breville espresso",
-    "Hayward pool pump",
-    "Navien tankless water heater",
+    # Pool & Spa
+    "Pentair MasterTemp",
+    "Pentair IntelliFlo",
+    "Hayward H-Series",
+    "Hayward AquaRite",
+    "Jandy JXi",
+    "Raypak pool heater",
+    # Tankless Water Heaters & HVAC
+    "Navien NPE",
+    "Rinnai tankless",
+    "Rheem EcoNet",
+    "Bradford White",
+    "Goodman furnace",
+    "Carrier error code",
+    # Espresso & Ice Makers
+    "Breville Barista",
+    "Jura espresso",
+    "DeLonghi Magnifica",
+    "GE Profile Opal ice maker",
+    "Scotsman ice machine",
+    "Manitowoc ice machine",
+    # Dishwashers & Laundry
+    "Bosch 500 800 series dishwasher",
+    "Miele dishwasher",
+    "Samsung washer error",
+    "LG washer error",
+    "Whirlpool Cabrio",
+    # 3D Printers & CNC
+    "Bambu Lab X1C P1S HMS error",
+    "Creality K1 error code",
+    "Prusa MK4 error",
 ]
 
 DEFAULT_USER_AGENT = (

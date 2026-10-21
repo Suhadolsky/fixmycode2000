@@ -6,5 +6,13 @@
     "matched_pages": 10,
     "codes_found": 10,
     "processed_at": "2026-10-21T14:14:20.511476+00:00"
+  },
+  "production_master_seed": {
+    "filename": "production_master_catalog.pdf",
+    "status": "success",
+    "total_pages": 1500,
+    "matched_pages": 1200,
+    "codes_found": 532,
+    "processed_at": "2026-10-21T17:55:12.165787+00:00"
   }
 }
