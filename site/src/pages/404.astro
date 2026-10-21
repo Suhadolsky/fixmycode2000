@@ -1,0 +1,45 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+---
+
+<MainLayout
+  title="404: Fault Code or Manual Not Found"
+  description="The requested diagnostic guide or fault code page could not be found. Search our database of 2,500+ OEM error codes."
+>
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 font-mono text-xs font-bold mb-6">
+      <span>HTTP 404</span>
+      <span>•</span>
+      <span>FAULT CODE NOT FOUND</span>
+    </div>
+
+    <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight mb-4">
+      Diagnostic Code Not In Database
+    </h1>
+
+    <p class="text-base sm:text-lg text-slate-600 mb-8 max-w-xl mx-auto leading-relaxed">
+      The equipment model or error code URL you requested may have been re-indexed, superseded by newer OEM documentation, or typed incorrectly.
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a
+        href="/"
+        class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-sm tracking-wide shadow-md transition"
+      >
+        <span>&larr; Search All 2,500+ Error Codes</span>
+      </a>
+      <a
+        href="/bosch/"
+        class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-white border border-slate-300 hover:border-slate-400 text-slate-700 font-semibold text-sm transition"
+      >
+        <span>Browse Bosch</span>
+      </a>
+      <a
+        href="/pentair/"
+        class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-white border border-slate-300 hover:border-slate-400 text-slate-700 font-semibold text-sm transition"
+      >
+        <span>Browse Pentair</span>
+      </a>
+    </div>
+  </div>
+</MainLayout>
