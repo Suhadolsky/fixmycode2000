@@ -94,8 +94,12 @@ class ErrorFixItem(BaseModel):
     primary_part_search_query: str = Field(
         description="Ultra-specific Amazon search query: '{brand} {model_series} {oem_part_number} {primary_part_name} replacement'"
     )
-    required_tool_name: str = Field(description="e.g., 'Torx T20 Screwdriver & Hose Clamp Pliers'")
-    required_tool_search_query: str = Field(description="Amazon search query for the specific tool")
+    required_tool_name: str = Field(
+        description="Single primary tool ONLY (e.g., 'Digital Multimeter' or 'Torx T20 Screwdriver'). STRICTLY FORBID compound connectors ('&', 'and', '+', 'with', ',') and multiple tools."
+    )
+    required_tool_search_query: str = Field(
+        description="Actionable Amazon search query for the single primary tool. Maximum 4 words. Strictly no '&', no 'and', and no trailing generic filler words like 'repair toolkit' or 'kit'."
+    )
     consumable_name: str = Field(description="e.g., 'Food-Grade Silicone O-Ring Grease'")
     consumable_search_query: str = Field(description="Amazon search query for the maintenance consumable")
     asin_part: Optional[str] = Field(
@@ -265,7 +269,9 @@ def call_gemini_extractor(client: genai.Client, manual_text: str) -> ExtractedMa
         "4. Provide estimated_pro_repair_cost as a realistic USD range like '$180 - $260'.\n"
         "5. Provide diagnostic_and_fix_steps as 3 to 5 clear, sequential steps (first step should cover power safety/unplugging, then multimeter or visual check, then replacement).\n"
         "6. Provide specific replacement part, tools, and maintenance consumable with actionable Amazon search queries. NEVER include price in search queries.\n"
-        "7. Provide 2 common follow-up FAQs for SEO schema.\n\n"
+        "7. For required_tool_name and required_tool_search_query: specify ONLY ONE single primary tool (e.g., 'Digital Multimeter' or 'Torx T20 Screwdriver'). Strictly FORBID compound connectors ('&', 'and', '+', 'with', ',') and multiple tools. Enforce a maximum of 4 words per tool query. Never append generic filler words like 'repair toolkit', 'set', or 'kit'.\n"
+        "8. For consumable_search_query, never append generic filler like 'appliance maintenance'.\n"
+        "9. Provide 2 common follow-up FAQs for SEO schema.\n\n"
         "MANUAL PAGES CONTENT:\n"
         f"{manual_text}"
     )
@@ -448,8 +454,8 @@ def seed_demo_data(amazon_tag: str) -> None:
             primary_part_name="Drain Pump Motor Assembly",
             oem_part_number="00631200",
             primary_part_search_query="Bosch 800 Series 00631200 Drain Pump Motor Assembly replacement",
-            required_tool_name="Torx T20 Screwdriver & Curved Needle-Nose Pliers",
-            required_tool_search_query="Torx T20 Screwdriver and Needle Nose Pliers set",
+            required_tool_name="Torx T20 Screwdriver",
+            required_tool_search_query="Torx T20 Screwdriver",
             consumable_name="Food-Grade Silicone Lubricant Grease",
             consumable_search_query="Food Grade Silicone O-Ring Lubricant Grease",
             asin_part="B07987G65M",
@@ -485,8 +491,8 @@ def seed_demo_data(amazon_tag: str) -> None:
             primary_part_name="Sump Basin Silicone Seal Repair Kit",
             oem_part_number="12005744",
             primary_part_search_query="Bosch 500 Series 12005744 Sump Basin Silicone Seal Repair Kit",
-            required_tool_name="Torx T20 Driver & Inspection Flashlight",
-            required_tool_search_query="Torx T20 Driver and LED Mechanic Inspection Light",
+            required_tool_name="Torx T20 Driver",
+            required_tool_search_query="Torx T20 Driver",
             consumable_name="Dishwasher Gasket Sealant Paste",
             consumable_search_query="High Temp Waterproof Appliance Gasket Sealant",
             asin_part="B08N5MDFG4",
@@ -522,8 +528,8 @@ def seed_demo_data(amazon_tag: str) -> None:
             primary_part_name="Stack Flue Sensor (SFS) Probe",
             oem_part_number="42002-0024S",
             primary_part_search_query="Pentair MasterTemp 42002-0024S Stack Flue Sensor replacement",
-            required_tool_name="Digital Multimeter & 1/2-inch Deep Well Socket",
-            required_tool_search_query="Digital Multimeter and Deep Well Socket Wrench Set",
+            required_tool_name="Digital Multimeter",
+            required_tool_search_query="Digital Multimeter",
             consumable_name="High-Temperature Anti-Seize Thread Lubricant",
             consumable_search_query="High Temperature Anti-Seize Thread Lubricant 1600F",
             asin_part="B004W4TUG4",
@@ -559,8 +565,8 @@ def seed_demo_data(amazon_tag: str) -> None:
             primary_part_name="High Limit Switch 135°F Assembly",
             oem_part_number="42001-0063S",
             primary_part_search_query="Pentair MasterTemp 42001-0063S High Limit Switch 135F replacement",
-            required_tool_name="Nut Driver 5/16-inch & Multimeter",
-            required_tool_search_query="Nut Driver Set 5/16 and Electrical Continuity Tester",
+            required_tool_name="Nut Driver 5/16-inch",
+            required_tool_search_query="Nut Driver 5/16-inch",
             consumable_name="Heat Transfer Compound Paste",
             consumable_search_query="Thermal Heatsink Grease Compound Paste",
             asin_part="B002FS38DY",
@@ -596,8 +602,8 @@ def seed_demo_data(amazon_tag: str) -> None:
             primary_part_name="Boiler NTC Temperature Sensor Probe",
             oem_part_number="SP0001815",
             primary_part_search_query="Breville Barista Oracle Touch NTC Temperature Sensor replacement",
-            required_tool_name="Torx T10 / T15 Security Drivers & Needle Nose Pliers",
-            required_tool_search_query="Precision Torx Security Screwdriver Set T10 T15",
+            required_tool_name="Torx T10 Security Screwdriver",
+            required_tool_search_query="Torx T10 Security Screwdriver",
             consumable_name="Food-Grade EPDM High Temp O-Rings #008",
             consumable_search_query="Food Grade High Temp Silicone EPDM O-Ring Assortment Breville",
             asin_part="B0874W4FGT",
@@ -633,8 +639,8 @@ def seed_demo_data(amazon_tag: str) -> None:
             primary_part_name="Digmesa Flow Meter Turbine Assembly",
             oem_part_number="SP0001509",
             primary_part_search_query="Breville Dual Boiler BES920XL Digmesa Flow Meter replacement",
-            required_tool_name="Hose Pinch Clamps & Phillips #1 Screwdriver",
-            required_tool_search_query="Micro Hose Clamp Pliers and Phillips Precision Screwdriver",
+            required_tool_name="Hose Pinch Clamps",
+            required_tool_search_query="Hose Pinch Clamps",
             consumable_name="Organic Sulfamic Acid Espresso Descaler",
             consumable_search_query="Commercial Espresso Machine Descaling Powder Sulfamic Acid",
             asin_part="B0868Z2876",
@@ -670,8 +676,8 @@ def seed_demo_data(amazon_tag: str) -> None:
             primary_part_name="Closed Vane Impeller Replacement",
             oem_part_number="SPX3205C",
             primary_part_search_query="Hayward TriStar VS SPX3205C Impeller Assembly replacement",
-            required_tool_name="Impeller Wedge Tool & 9/16-inch Open End Wrench",
-            required_tool_search_query="Pool Pump Impeller Removal Tool and Open End Wrench Set",
+            required_tool_name="Impeller Wedge Tool",
+            required_tool_search_query="Impeller Wedge Tool",
             consumable_name="Silicone O-Ring Lube & Shaft Seal Sealant",
             consumable_search_query="Pool Pump O-Ring Lube and Ceramic Shaft Seal Kit",
             asin_part="B0032JTC1W",
@@ -707,8 +713,8 @@ def seed_demo_data(amazon_tag: str) -> None:
             primary_part_name="Motor Cooling Fan & Shroud Assembly",
             oem_part_number="SPX3400FAN",
             primary_part_search_query="Hayward EcoStar SPX3400FAN Motor Cooling Fan replacement",
-            required_tool_name="Compressed Air Can & 1/4-inch Nut Driver",
-            required_tool_search_query="Compressed Air Duster Can and Nut Driver Set",
+            required_tool_name="Compressed Air Can",
+            required_tool_search_query="Compressed Air Can",
             consumable_name="UV-Resistant Protective Pump Equipment Cover",
             consumable_search_query="UV Proof Waterproof Pool Pump Motor Sun Shield Cover",
             asin_part="B008E6OQ04",
@@ -744,8 +750,8 @@ def seed_demo_data(amazon_tag: str) -> None:
             primary_part_name="Dual Flame Rod and Ignition Electrode Assembly",
             oem_part_number="30010972A",
             primary_part_search_query="Navien NPE 30010972A Flame Rod Ignition Electrode replacement",
-            required_tool_name="Gas Manometer & Phillips #2 Magnetic Screwdriver",
-            required_tool_search_query="Digital Gas Manometer Pressure Tester and Phillips Screwdriver",
+            required_tool_name="Digital Gas Manometer",
+            required_tool_search_query="Digital Gas Manometer",
             consumable_name="#0000 Ultra-Fine Steel Wool & Burner Gasket",
             consumable_search_query="0000 Grade Steel Wool Pads and High Temp Gas Burner Gasket",
             asin_part="B07Q5W4G87",
@@ -781,8 +787,8 @@ def seed_demo_data(amazon_tag: str) -> None:
             primary_part_name="Flue Exhaust Gas Thermistor Sensor",
             oem_part_number="30008577A",
             primary_part_search_query="Navien NPE Flue Gas Temperature Sensor 30008577A replacement",
-            required_tool_name="Tankless Water Heater Submersible Flush Pump Kit",
-            required_tool_search_query="Tankless Water Heater Flush Kit Submersible Pump and Hoses",
+            required_tool_name="Submersible Flush Pump",
+            required_tool_search_query="Submersible Flush Pump",
             consumable_name="Food-Grade Citric Acid Tankless Descaler Solution",
             consumable_search_query="Tankless Water Heater Descaler Solution Citric Acid Powder",
             asin_part="B07P962G87",

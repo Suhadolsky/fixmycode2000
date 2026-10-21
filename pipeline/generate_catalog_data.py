@@ -717,33 +717,38 @@ def build_full_catalog():
                 f"Restore power, clear diagnostic error memory, and perform automated test cycle to verify error code {error_code} does not recur."
             ]
             
-            # Tools & consumables based on category
+            # Tools & consumables based on category (single primary tool, max 4 words query)
             if "Pool" in equipment_type:
-                tool = "Digital Multimeter & 1/2-Inch Deep Socket Wrench"
+                tool = "Digital Multimeter"
+                tool_query = "Digital Multimeter"
                 consumable = "High-Temperature Anti-Seize Thread Lubricant 1600F"
                 asin_part = "B07987G65M"
                 asin_tool = "B00002X29G"
                 asin_consumable = "B000DZFUPC"
             elif "Water Heater" in equipment_type or "Furnace" in equipment_type:
-                tool = "Digital Gas Manometer & Multimeter Tester"
+                tool = "Digital Gas Manometer"
+                tool_query = "Digital Gas Manometer"
                 consumable = "High-Temperature Burner Gasket Sealant Paste"
                 asin_part = "B08N5MDFG4"
                 asin_tool = "B07KMR9T1H"
                 asin_consumable = "B0002UEPVI"
             elif "Espresso" in equipment_type or "Ice" in equipment_type:
-                tool = "Precision Torx Security Drivers T10/T15 & Hose Clamp Pliers"
+                tool = "Precision Torx Security Drivers"
+                tool_query = "Precision Torx Security Drivers"
                 consumable = "Food-Grade EPDM High-Temp Silicone O-Ring Assortment"
                 asin_part = "B0874W4FGT"
                 asin_tool = "B07BMMXFLC"
                 asin_consumable = "B01G1DFJNK"
             elif "Washer" in equipment_type or "Dishwasher" in equipment_type:
-                tool = "Nut Driver Set 1/4 & 5/16-Inch with Hose Clamp Pliers"
+                tool = "Nut Driver Set"
+                tool_query = "Nut Driver Set"
                 consumable = "Waterproof Appliance Gasket Sealant Paste"
                 asin_part = "B0032JTC1W"
                 asin_tool = "B003X5M7F8"
                 asin_consumable = "B002K6P0DO"
             else: # 3D Printer
-                tool = "Metric Hex Wrench Set 1.5mm-4mm & Precision Tweezers"
+                tool = "Metric Hex Wrench Set"
+                tool_query = "Metric Hex Wrench Set"
                 consumable = "High-Temperature Boron Nitride Thermal Paste 1000C"
                 asin_part = "B07Q5W4G87"
                 asin_tool = "B0767R6LNY"
@@ -763,9 +768,9 @@ def build_full_catalog():
                 "oem_part_number": oem,
                 "primary_part_search_query": f"{brand} {model_series} {oem} {part_name} replacement",
                 "required_tool_name": tool,
-                "required_tool_search_query": f"{tool} repair toolkit",
+                "required_tool_search_query": tool_query,
                 "consumable_name": consumable,
-                "consumable_search_query": f"{consumable} appliance maintenance",
+                "consumable_search_query": consumable,
                 "asin_part": asin_part,
                 "asin_tool": asin_tool,
                 "asin_consumable": asin_consumable,
