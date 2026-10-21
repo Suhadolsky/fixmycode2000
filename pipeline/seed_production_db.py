@@ -40,7 +40,7 @@ def load_environment() -> tuple[str, str]:
     """Load required environment variables."""
     load_dotenv(BASE_DIR / ".env")
     gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
-    amazon_tag = os.getenv("AMAZON_TAG", "fixmycode-20").strip()
+    amazon_tag = os.getenv("AMAZON_TAG", "amazinrevie0a-20").strip()
     return gemini_key, amazon_tag
 
 
