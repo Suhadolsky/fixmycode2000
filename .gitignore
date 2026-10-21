@@ -1,0 +1,26 @@
+# Environment Variables (Secrets)
+.env
+.env*.local
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+
+# Astro build cache and dist
+dist/
+.astro/
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# Operating System files
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp

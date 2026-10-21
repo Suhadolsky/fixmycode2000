@@ -1,0 +1,218 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import errorsDb from '../data/errors_db.json';
+
+// Group data by Brand and Equipment Type
+const totalCodes = errorsDb.length;
+const brandsMap = new Map<string, number>();
+const equipmentMap = new Map<string, number>();
+
+errorsDb.forEach((item) => {
+  const brand = item.brand;
+  brandsMap.set(brand, (brandsMap.get(brand) || 0) + 1);
+
+  const equip = item.equipment_type;
+  equipmentMap.set(equip, (equipmentMap.get(equip) || 0) + 1);
+});
+
+const brandsList = Array.from(brandsMap.entries()).map(([name, count]) => ({
+  name,
+  slug: itemSlug(name),
+  count,
+}));
+
+const equipmentList = Array.from(equipmentMap.entries()).map(([name, count]) => ({
+  name,
+  count,
+}));
+
+function itemSlug(str: string): string {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+---
+
+<MainLayout title="OEM Service Manual Error Code & Fault Database">
+  <!-- Hero Technical Header -->
+  <section class="bg-slate-900 text-white border-b border-slate-800 py-12 sm:py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl space-y-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-xs font-mono text-amber-400">
+          <span>●</span>
+          <span>PROGRAMMATIC REPAIR ENGINE • {totalCodes} FAULT CODES INDEXED</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+          Appliance & Equipment <span class="text-amber-500">Service Manual</span> Database
+        </h1>
+        <p class="text-slate-400 text-base sm:text-lg leading-relaxed">
+          Direct troubleshooting instructions, root causes, technician fix steps, and exact OEM part replacements extracted from certified technical documentation.
+        </p>
+
+        <!-- Live Instant Search Bar -->
+        <div class="pt-4 max-w-2xl">
+          <div class="relative">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search by code (e.g. E24, SFS, ER03) or brand (Bosch, Pentair, Navien)..."
+              class="w-full bg-slate-800 border-2 border-slate-700 text-white placeholder-slate-400 text-sm sm:text-base rounded-xl py-3.5 pl-11 pr-4 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 font-sans shadow-inner transition"
+            />
+            <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <p class="text-xs text-slate-400 mt-2 font-mono">
+            Pro Tip: Type your appliance error code to jump directly to the verified fix guide.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Key Technical Metrics Bar -->
+  <section class="bg-white border-b border-slate-200 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center divide-x divide-slate-100">
+        <div>
+          <div class="text-2xl sm:text-3xl font-black font-mono text-slate-900">{totalCodes}</div>
+          <div class="text-xs font-mono uppercase tracking-wider text-slate-500 mt-1">Verified Fault Codes</div>
+        </div>
+        <div>
+          <div class="text-2xl sm:text-3xl font-black font-mono text-slate-900">{brandsList.length}</div>
+          <div class="text-xs font-mono uppercase tracking-wider text-slate-500 mt-1">Supported Brands</div>
+        </div>
+        <div>
+          <div class="text-2xl sm:text-3xl font-black font-mono text-slate-900">~75%</div>
+          <div class="text-xs font-mono uppercase tracking-wider text-slate-500 mt-1">Average DIY Savings</div>
+        </div>
+        <div>
+          <div class="text-2xl sm:text-3xl font-black font-mono text-amber-600">OEM</div>
+          <div class="text-xs font-mono uppercase tracking-wider text-slate-500 mt-1">Manual Calibrated</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Directory Section -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Brand Selector Hubs -->
+    <div class="mb-12">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold tracking-tight text-slate-900">Browse by Manufacturer Hub</h2>
+        <span class="text-xs font-mono text-slate-500">Direct Manual Feeds</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+        {brandsList.map((brand) => (
+          <a
+            href={`/${brand.slug}/`}
+            class="flex flex-col p-4 rounded-xl border border-slate-200 bg-white hover:border-amber-500 hover:shadow-md transition group"
+          >
+            <span class="text-base font-bold text-slate-900 group-hover:text-amber-600 transition">
+              {brand.name}
+            </span>
+            <span class="text-xs font-mono text-slate-500 mt-1">
+              {brand.count} {brand.count === 1 ? 'Error Code' : 'Error Codes'}
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <!-- Equipment Category Tags -->
+    <div class="mb-10 flex flex-wrap items-center gap-2">
+      <span class="text-xs font-mono uppercase tracking-wider text-slate-500 mr-2">Equipment Types:</span>
+      {equipmentList.map((eq) => (
+        <span class="px-3 py-1 rounded-full text-xs font-medium bg-slate-200/80 text-slate-800">
+          {eq.name} ({eq.count})
+        </span>
+      ))}
+    </div>
+
+    <!-- Comprehensive Master Fault Directory Table -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Master Fault Code Index</h2>
+          <p class="text-xs text-slate-500">Live indexed manuals sorted by manufacturer and model series</p>
+        </div>
+        <span id="resultsCount" class="text-xs font-mono bg-slate-100 text-slate-700 px-2.5 py-1 rounded">
+          Showing {errorsDb.length} Fault Guides
+        </span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm" id="codesTable">
+          <thead class="bg-slate-50 text-slate-700 text-xs font-mono uppercase border-b border-slate-200">
+            <tr>
+              <th class="py-3.5 px-4 font-semibold">Error Code</th>
+              <th class="py-3.5 px-4 font-semibold">Brand & Equipment</th>
+              <th class="py-3.5 px-4 font-semibold">Model Series</th>
+              <th class="py-3.5 px-4 font-semibold">Symptom</th>
+              <th class="py-3.5 px-4 font-semibold">Primary Part</th>
+              <th class="py-3.5 px-4 font-semibold text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 text-slate-700 font-sans">
+            {errorsDb.map((item) => (
+              <tr class="hover:bg-amber-50/40 transition searchable-row" data-search={`${item.brand} ${item.error_code} ${item.equipment_type} ${item.model_series} ${item.short_symptom}`.toLowerCase()}>
+                <td class="py-4 px-4 font-mono font-bold text-slate-900">
+                  <span class="bg-slate-100 border border-slate-300 px-2.5 py-1 rounded-md text-amber-700">
+                    {item.error_code}
+                  </span>
+                </td>
+                <td class="py-4 px-4">
+                  <div class="font-bold text-slate-900">{item.brand}</div>
+                  <div class="text-xs text-slate-500">{item.equipment_type}</div>
+                </td>
+                <td class="py-4 px-4 text-xs font-mono text-slate-600 max-w-xs truncate">
+                  {item.model_series}
+                </td>
+                <td class="py-4 px-4 max-w-xs">
+                  <span class="text-slate-800 line-clamp-1">{item.short_symptom}</span>
+                </td>
+                <td class="py-4 px-4 text-xs font-medium text-slate-900">
+                  {item.primary_part_name}
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <a
+                    href={`/${item.brand_slug}/${item.slug}/`}
+                    class="inline-flex items-center gap-1 text-xs font-bold font-mono px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-amber-600 text-white transition"
+                  >
+                    Fix Guide &rarr;
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Client-side real-time filter script -->
+  <script is:inline>
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('.searchable-row');
+    const countBadge = document.getElementById('resultsCount');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        tableRows.forEach((row) => {
+          const haystack = row.getAttribute('data-search') || '';
+          if (!query || haystack.includes(query)) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        if (countBadge) {
+          countBadge.textContent = `Showing ${visibleCount} Fault Guides`;
+        }
+      });
+    }
+  </script>
+</MainLayout>

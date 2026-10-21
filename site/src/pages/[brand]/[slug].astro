@@ -1,0 +1,301 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import RepairKitBox from '../../components/RepairKitBox.astro';
+import SchemaLD from '../../components/SchemaLD.astro';
+import errorsDb from '../../data/errors_db.json';
+
+export async function getStaticPaths() {
+  return errorsDb.map((item) => {
+    const brandSlug = item.brand_slug || item.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const slug = item.slug;
+
+    // Related codes for same brand
+    const relatedErrors = errorsDb
+      .filter((other) => other.brand === item.brand && other.slug !== item.slug)
+      .slice(0, 5);
+
+    return {
+      params: {
+        brand: brandSlug,
+        slug: slug,
+      },
+      props: {
+        errorItem: item,
+        relatedErrors,
+      },
+    };
+  });
+}
+
+interface Props {
+  errorItem: any;
+  relatedErrors: any[];
+}
+
+const { errorItem, relatedErrors = [] } = Astro.props;
+
+const pageTitle = `${errorItem.brand} ${errorItem.model_series} Error Code ${errorItem.error_code}: ${errorItem.short_symptom} (How to Fix)`;
+const pageDesc = `Step-by-step diagnostic and repair instructions for ${errorItem.brand} Error ${errorItem.error_code} (${errorItem.short_symptom}). Root cause, OEM part numbers, and required tools.`;
+---
+
+<MainLayout title={pageTitle} description={pageDesc}>
+  <!-- Schema.org JSON-LD Injected to Head -->
+  <Fragment slot="head">
+    <SchemaLD
+      brand={errorItem.brand}
+      modelSeries={errorItem.model_series}
+      errorCode={errorItem.error_code}
+      shortSymptom={errorItem.short_symptom}
+      plainEnglishMeaning={errorItem.plain_english_meaning}
+      estimatedCost={errorItem.estimated_pro_repair_cost}
+      steps={errorItem.diagnostic_and_fix_steps}
+      primaryPartName={errorItem.primary_part_name}
+      consumableName={errorItem.consumable_name}
+      requiredToolName={errorItem.required_tool_name}
+      faqQuestions={errorItem.faq_questions}
+    />
+  </Fragment>
+
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- 1. Breadcrumbs (Above the Fold) -->
+    <nav class="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-500 mb-5">
+      <a href="/" class="hover:text-amber-600 transition">Home</a>
+      <span>&gt;</span>
+      <a href={`/${errorItem.brand_slug}/`} class="hover:text-amber-600 transition">{errorItem.brand}</a>
+      <span>&gt;</span>
+      <span class="text-slate-700">{errorItem.equipment_type}</span>
+      <span>&gt;</span>
+      <span class="font-bold text-amber-700">Error {errorItem.error_code}</span>
+    </nav>
+
+    <!-- 2. H1 Header (Above the Fold) -->
+    <header class="space-y-3 mb-6">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="inline-block px-3 py-1 rounded-md bg-amber-500 text-slate-950 font-mono font-black text-sm uppercase shadow-xs">
+          FAULT CODE: {errorItem.error_code}
+        </span>
+        <span class="text-xs font-mono text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded">
+          {errorItem.equipment_type} • {errorItem.model_series}
+        </span>
+      </div>
+
+      <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 leading-tight">
+        {errorItem.brand} {errorItem.model_series} Error Code {errorItem.error_code}: {errorItem.short_symptom} (How to Fix)
+      </h1>
+
+      <!-- 3. Affiliate Disclosure Micro-Banner -->
+      <div class="bg-amber-50/80 border-l-4 border-amber-500 p-2.5 rounded-r text-xs text-slate-600">
+        <p class="font-medium text-slate-800">
+          Reader-supported technical database. As an Amazon Associate, we earn from qualifying purchases at no extra cost to you.
+        </p>
+      </div>
+    </header>
+
+    <!-- 4. Diagnostic Status Bar (3 Badges) -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 my-6 p-4 rounded-xl bg-slate-900 text-white font-mono text-xs">
+      <div class="flex items-center gap-2.5">
+        <div class="w-2.5 h-2.5 rounded-full bg-amber-400"></div>
+        <div>
+          <span class="text-slate-400 block text-[10px] uppercase">DIY Difficulty</span>
+          <span class="font-bold text-white text-xs">{errorItem.diy_difficulty}</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <div class="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+        <div>
+          <span class="text-slate-400 block text-[10px] uppercase">Est. Pro Service Cost</span>
+          <span class="font-bold text-white text-xs">{errorItem.estimated_pro_repair_cost}</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <div class="w-2.5 h-2.5 rounded-full bg-blue-400"></div>
+        <div>
+          <span class="text-slate-400 block text-[10px] uppercase">Est. DIY Savings</span>
+          <span class="font-bold text-emerald-300 text-xs font-mono">~75% Saved</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. THE MONEY BOX: RepairKitBox Component (Above the Fold) -->
+    <RepairKitBox
+      errorCode={errorItem.error_code}
+      primaryPartName={errorItem.primary_part_name}
+      oemPartNumber={errorItem.oem_part_number}
+      partAffiliateUrl={errorItem.part_affiliate_url}
+      requiredToolName={errorItem.required_tool_name}
+      toolAffiliateUrl={errorItem.tool_affiliate_url}
+      consumableName={errorItem.consumable_name}
+      consumableAffiliateUrl={errorItem.consumable_affiliate_url}
+      bundleCartUrl={errorItem.bundle_cart_url}
+      hasAsinBundle={errorItem.has_asin_bundle}
+    />
+
+    <!-- ==================== BELOW THE FOLD ==================== -->
+
+    <!-- Section 1: What Causes Brand Error Code? -->
+    <section class="my-10">
+      <div class="border border-slate-200 rounded-2xl p-6 bg-white shadow-xs">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          <h2 class="text-xl font-bold tracking-tight text-slate-900">
+            What Causes {errorItem.brand} Error {errorItem.error_code}?
+          </h2>
+        </div>
+        <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+          {errorItem.plain_english_meaning}
+        </p>
+
+        <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 font-mono">
+          <span>Equipment: {errorItem.equipment_type}</span>
+          <span>OEM Reference Part: {errorItem.oem_part_number}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Step-by-Step Troubleshooting Checklist -->
+    <section class="my-10">
+      <div class="border border-slate-200 rounded-2xl p-6 sm:p-8 bg-white shadow-xs">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+              Step-by-Step Troubleshooting &amp; Replacement Procedure
+            </h2>
+            <p class="text-xs text-slate-500 mt-1">
+              Click checkboxes as you finish each diagnostic phase to track your repair progress.
+            </p>
+          </div>
+          <span class="hidden sm:inline-block text-xs font-mono bg-slate-100 text-slate-700 px-3 py-1 rounded">
+            {errorItem.diagnostic_and_fix_steps.length} Steps
+          </span>
+        </div>
+
+        <ol class="space-y-4 font-sans text-sm sm:text-base">
+          {errorItem.diagnostic_and_fix_steps.map((step: string, index: number) => (
+            <li class="flex items-start gap-3.5 p-3.5 rounded-xl border border-slate-200/80 hover:border-amber-400/80 bg-slate-50/50 transition checklist-item">
+              <label class="flex items-start gap-3.5 cursor-pointer w-full">
+                <input
+                  type="checkbox"
+                  class="mt-1 w-4 h-4 rounded text-amber-600 border-slate-300 focus:ring-amber-500 shrink-0 cursor-pointer checklist-checkbox"
+                />
+                <div class="flex-1">
+                  <span class="font-mono font-bold text-slate-900 text-xs block mb-0.5 text-amber-700 uppercase">
+                    Step {index + 1}
+                  </span>
+                  <span class="text-slate-800 leading-relaxed step-text">
+                    {step}
+                  </span>
+                </div>
+              </label>
+            </li>
+          ))}
+        </ol>
+
+        <!-- Mid-article In-line Part Reminder CTA -->
+        <div class="mt-8 p-4 rounded-xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="text-xs text-amber-900 font-medium">
+            <strong>Ready to install?</strong> Make sure you have the replacement part before disassembling.
+          </div>
+          <a
+            href={errorItem.part_affiliate_url}
+            target="_blank"
+            rel="nofollow noopener sponsored"
+            class="inline-flex items-center justify-center text-xs font-bold font-mono px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white shadow-xs shrink-0 transition"
+          >
+            Order {errorItem.primary_part_name} &rarr;
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Frequently Asked Questions (FAQ) -->
+    {errorItem.faq_questions && errorItem.faq_questions.length > 0 && (
+      <section class="my-10">
+        <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 mb-4">
+          Frequently Asked Questions About Error {errorItem.error_code}
+        </h2>
+        <div class="space-y-4">
+          {errorItem.faq_questions.map((faq: any) => (
+            <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-xs">
+              <h3 class="text-base font-bold text-slate-900 mb-2">
+                {faq.question}
+              </h3>
+              <p class="text-sm text-slate-700 leading-relaxed">
+                {faq.answer}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Section 4: Related Error Codes for Same Brand (Internal Linking for SEO Crawl Depth) -->
+    {relatedErrors.length > 0 && (
+      <section class="my-12 pt-8 border-t border-slate-200">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-slate-900">
+            More {errorItem.brand} Fault Codes &amp; Manuals
+          </h2>
+          <a
+            href={`/${errorItem.brand_slug}/`}
+            class="text-xs font-mono text-amber-700 hover:text-amber-800 font-semibold"
+          >
+            View All {errorItem.brand} Guides &rarr;
+          </a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          {relatedErrors.map((rel: any) => (
+            <a
+              href={`/${rel.brand_slug}/${rel.slug}/`}
+              class="p-4 rounded-xl border border-slate-200 bg-white hover:border-amber-500 hover:shadow-xs transition group flex flex-col justify-between"
+            >
+              <div>
+                <span class="inline-block px-2 py-0.5 rounded font-mono font-bold text-xs bg-slate-100 text-amber-700 group-hover:bg-amber-100 transition">
+                  {rel.error_code}
+                </span>
+                <h4 class="text-sm font-semibold text-slate-900 mt-2 line-clamp-1 group-hover:text-amber-600 transition">
+                  {rel.short_symptom}
+                </h4>
+              </div>
+              <span class="text-[11px] font-mono text-slate-500 mt-2">
+                {rel.model_series}
+              </span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </article>
+
+  <!-- 3. Secondary Sticky Mobile CTA (Bottom Bar for Mobile Screens) -->
+  <aside class="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur border-t border-slate-800 p-3 flex md:hidden items-center justify-between shadow-2xl">
+    <div class="max-w-[55%]">
+      <div class="text-[10px] uppercase font-mono text-amber-400">Error {errorItem.error_code} Repair Kit</div>
+      <div class="text-xs font-bold text-white truncate">{errorItem.primary_part_name}</div>
+    </div>
+    <a
+      href={errorItem.bundle_cart_url || errorItem.part_affiliate_url}
+      target="_blank"
+      rel="nofollow noopener sponsored"
+      class="inline-flex items-center justify-center px-3.5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs tracking-wide shadow-md transition"
+    >
+      <span>{errorItem.has_asin_bundle ? "Add Kit to Cart \u2192" : "Find on Amazon \u2192"}</span>
+    </a>
+  </aside>
+
+  <!-- Interactive Checklist Client Script -->
+  <script is:inline>
+    document.querySelectorAll('.checklist-checkbox').forEach((checkbox) => {
+      checkbox.addEventListener('change', (e) => {
+        const item = e.target.closest('.checklist-item');
+        const text = item.querySelector('.step-text');
+        if (e.target.checked) {
+          text.classList.add('line-through', 'text-slate-400');
+          item.classList.add('bg-emerald-50/50', 'border-emerald-300');
+        } else {
+          text.classList.remove('line-through', 'text-slate-400');
+          item.classList.remove('bg-emerald-50/50', 'border-emerald-300');
+        }
+      });
+    });
+  </script>
+</MainLayout>

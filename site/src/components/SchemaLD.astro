@@ -1,0 +1,91 @@
+---
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  brand: string;
+  modelSeries: string;
+  errorCode: string;
+  shortSymptom: string;
+  plainEnglishMeaning: string;
+  estimatedCost: string;
+  steps: string[];
+  primaryPartName: string;
+  consumableName: string;
+  requiredToolName: string;
+  faqQuestions: FAQItem[];
+}
+
+const {
+  brand,
+  modelSeries,
+  errorCode,
+  shortSymptom,
+  plainEnglishMeaning,
+  estimatedCost,
+  steps,
+  primaryPartName,
+  consumableName,
+  requiredToolName,
+  faqQuestions = [],
+} = Astro.props;
+
+// Build Schema.org HowTo Step Objects
+const howToSteps = steps.map((stepText, idx) => ({
+  "@type": "HowToStep",
+  position: idx + 1,
+  name: `Step ${idx + 1}: Diagnostic & Repair Procedure`,
+  text: stepText,
+}));
+
+// Build Schema.org FAQ Objects
+const faqEntities = (faqQuestions || []).map((faq) => ({
+  "@type": "Question",
+  name: faq.question,
+  acceptedAnswer: {
+    "@type": "Answer",
+    text: faq.answer,
+  },
+}));
+
+const schemaGraph = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "HowTo",
+      name: `How to Fix ${brand} ${modelSeries} Error Code ${errorCode}: ${shortSymptom}`,
+      description: plainEnglishMeaning,
+      estimatedCost: {
+        "@type": "MonetaryAmount",
+        currency: "USD",
+        value: estimatedCost,
+      },
+      supply: [
+        {
+          "@type": "HowToSupply",
+          name: primaryPartName,
+        },
+        {
+          "@type": "HowToSupply",
+          name: consumableName,
+        },
+      ],
+      tool: [
+        {
+          "@type": "HowToTool",
+          name: requiredToolName,
+        },
+      ],
+      step: howToSteps,
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: faqEntities,
+    },
+  ],
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schemaGraph)} />

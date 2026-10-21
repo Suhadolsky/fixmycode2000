@@ -1,0 +1,502 @@
+[
+  {
+    "brand": "Bosch",
+    "equipment_type": "Dishwasher",
+    "model_series": "800 Series / SHPM78Z55N",
+    "error_code": "E24",
+    "short_symptom": "Drain System Fault / Water Will Not Pump Out",
+    "plain_english_meaning": "The controller detected that water remains in the sump after the timed drain cycle. Usually caused by a jammed drain pump impeller, clogged sink air gap, or stuck check valve flap.",
+    "diy_difficulty": "Medium (30-45 mins)",
+    "estimated_pro_repair_cost": "$190 - $270",
+    "diagnostic_and_fix_steps": [
+      "Turn off main circuit breaker or unplug the dishwasher from the under-sink outlet.",
+      "Remove the lower dish rack, unscrew the cylindrical fine filter, and soak up standing sump water with a sponge.",
+      "Pry off the white plastic drain pump impeller cover using a blunt butter knife or spoon; inspect for chicken bones, fruit pits, or broken glass.",
+      "Verify the impeller spins freely by hand with magnetic resistance every 90 degrees; if seized, replace the pump motor.",
+      "Inspect the sink garbage disposal knockout plug and drain hose high loop for grease blockages."
+    ],
+    "primary_part_name": "Drain Pump Motor Assembly",
+    "oem_part_number": "00631200",
+    "primary_part_search_query": "Bosch 800 Series 00631200 Drain Pump Motor Assembly replacement",
+    "required_tool_name": "Torx T20 Screwdriver & Curved Needle-Nose Pliers",
+    "required_tool_search_query": "Torx T20 Screwdriver and Needle Nose Pliers set",
+    "consumable_name": "Food-Grade Silicone Lubricant Grease",
+    "consumable_search_query": "Food Grade Silicone O-Ring Lubricant Grease",
+    "asin_part": "B07987G65M",
+    "asin_tool": "B00002X29G",
+    "asin_consumable": "B000DZFUPC",
+    "faq_questions": [
+      {
+        "question": "Can I reset the Bosch E24 error by unplugging the unit?",
+        "answer": "A power cycle can clear the micro-controller buffer, but if physical debris remains locked in the pump impeller cavity, E24 will trigger again within 2 minutes of the next wash cycle."
+      },
+      {
+        "question": "Why did E24 appear right after installing a new garbage disposal?",
+        "answer": "This almost always occurs because the plastic drain knockout plug inside the new disposal inlet port was not punched out before attaching the dishwasher drain hose."
+      }
+    ],
+    "slug": "bosch-800-series-shpm78z55n-error-code-e24-fix-2",
+    "brand_slug": "bosch",
+    "equipment_slug": "dishwasher",
+    "part_affiliate_url": "https://www.amazon.com/s?k=Bosch+800+Series+00631200+Drain+Pump+Motor+Assembly+replacement&tag=fixmycode-20",
+    "tool_affiliate_url": "https://www.amazon.com/s?k=Torx+T20+Screwdriver+and+Needle+Nose+Pliers+set&tag=fixmycode-20",
+    "consumable_affiliate_url": "https://www.amazon.com/s?k=Food+Grade+Silicone+O-Ring+Lubricant+Grease&tag=fixmycode-20",
+    "bundle_cart_url": "https://www.amazon.com/gp/aws/cart/add.html?AssociateTag=fixmycode-20&ASIN.1=B07987G65M&Quantity.1=1&ASIN.2=B00002X29G&Quantity.2=1&ASIN.3=B000DZFUPC&Quantity.3=1",
+    "has_asin_bundle": true,
+    "primary_part_affiliate_url": "https://www.amazon.com/s?k=Bosch+800+Series+00631200+Drain+Pump+Motor+Assembly+replacement&tag=fixmycode-20",
+    "required_tool_affiliate_url": "https://www.amazon.com/s?k=Torx+T20+Screwdriver+and+Needle+Nose+Pliers+set&tag=fixmycode-20",
+    "source_file": "demo_seed_manual.pdf",
+    "source_hash": "demo_seed_bosch_e24",
+    "extracted_at": "2026-10-21T14:14:20.490843+00:00"
+  },
+  {
+    "brand": "Bosch",
+    "equipment_type": "Dishwasher",
+    "model_series": "500 Series / SHP865ZD5N",
+    "error_code": "E15",
+    "short_symptom": "Water Protection System Active / Base Float Triggered",
+    "plain_english_meaning": "Water has leaked into the safety condensation pan beneath the wash tub, lifting the polystyrene emergency float switch and locking the drain pump on continuously.",
+    "diy_difficulty": "Easy (15 mins)",
+    "estimated_pro_repair_cost": "$160 - $240",
+    "diagnostic_and_fix_steps": [
+      "Disconnect the dishwasher from wall power immediately to stop the safety drain pump.",
+      "Turn off the under-sink hot water supply shutoff valve.",
+      "Carefully remove the bottom toe-kick kickplate with a T20 screwdriver and inspect the plastic drip tray.",
+      "Soak up water in the base pan with microfiber towels or tilt the appliance backward at a 45-degree angle to drain onto a towel.",
+      "Inspect the sump perimeter silicone gasket and door perimeter seal for tears or soap residue leaks."
+    ],
+    "primary_part_name": "Sump Basin Silicone Seal Repair Kit",
+    "oem_part_number": "12005744",
+    "primary_part_search_query": "Bosch 500 Series 12005744 Sump Basin Silicone Seal Repair Kit",
+    "required_tool_name": "Torx T20 Driver & Inspection Flashlight",
+    "required_tool_search_query": "Torx T20 Driver and LED Mechanic Inspection Light",
+    "consumable_name": "Dishwasher Gasket Sealant Paste",
+    "consumable_search_query": "High Temp Waterproof Appliance Gasket Sealant",
+    "asin_part": "B08N5MDFG4",
+    "asin_tool": "B07KMR9T1H",
+    "asin_consumable": "B0002UEPVI",
+    "faq_questions": [
+      {
+        "question": "Will tilting the dishwasher permanently fix error E15?",
+        "answer": "Tilting drains the tray and temporarily lowers the float switch, but unless you seal the weeping sump bowl gasket, the leak will recur within 3 to 10 wash cycles."
+      },
+      {
+        "question": "Why won't my Bosch dishwasher turn off during an E15 error?",
+        "answer": "The safety flood switch bypasses the front control panel to run the drain pump non-stop to prevent residential flooring flood damage."
+      }
+    ],
+    "slug": "bosch-500-series-shp865zd5n-error-code-e15-fix-2",
+    "brand_slug": "bosch",
+    "equipment_slug": "dishwasher",
+    "part_affiliate_url": "https://www.amazon.com/s?k=Bosch+500+Series+12005744+Sump+Basin+Silicone+Seal+Repair+Kit&tag=fixmycode-20",
+    "tool_affiliate_url": "https://www.amazon.com/s?k=Torx+T20+Driver+and+LED+Mechanic+Inspection+Light&tag=fixmycode-20",
+    "consumable_affiliate_url": "https://www.amazon.com/s?k=High+Temp+Waterproof+Appliance+Gasket+Sealant&tag=fixmycode-20",
+    "bundle_cart_url": "https://www.amazon.com/gp/aws/cart/add.html?AssociateTag=fixmycode-20&ASIN.1=B08N5MDFG4&Quantity.1=1&ASIN.2=B07KMR9T1H&Quantity.2=1&ASIN.3=B0002UEPVI&Quantity.3=1",
+    "has_asin_bundle": true,
+    "primary_part_affiliate_url": "https://www.amazon.com/s?k=Bosch+500+Series+12005744+Sump+Basin+Silicone+Seal+Repair+Kit&tag=fixmycode-20",
+    "required_tool_affiliate_url": "https://www.amazon.com/s?k=Torx+T20+Driver+and+LED+Mechanic+Inspection+Light&tag=fixmycode-20",
+    "source_file": "demo_seed_manual.pdf",
+    "source_hash": "demo_seed_bosch_e15",
+    "extracted_at": "2026-10-21T14:14:20.490843+00:00"
+  },
+  {
+    "brand": "Pentair",
+    "equipment_type": "Pool Heater",
+    "model_series": "MasterTemp 400 / 250",
+    "error_code": "SFS",
+    "short_symptom": "Stack Flue Sensor Fault / High Exhaust Temperature",
+    "plain_english_meaning": "The stack flue exhaust sensor detected temperatures exceeding 480°F (249°C) or open circuit resistance, indicating low thermal heat exchange efficiency or thermal regulator failure.",
+    "diy_difficulty": "Medium (30-45 mins)",
+    "estimated_pro_repair_cost": "$220 - $350",
+    "diagnostic_and_fix_steps": [
+      "Shut down both 240V pool equipment circuit breakers and close the manual gas cock valve.",
+      "Unscrew the side access panel to locate the stainless steel exhaust flue elbow.",
+      "Disconnect the two yellow sensor leads and test cold resistance with a digital multimeter (normal reading is 3.5 to 4.2 mega-ohms at 75°F).",
+      "If reading reads open circuit (infinite resistance) or shorted, unthread the 1/2-inch brass sensor from the exhaust manifold.",
+      "Inspect the thermal regulator valve located behind the water header to ensure proper cold bypass mixing."
+    ],
+    "primary_part_name": "Stack Flue Sensor (SFS) Probe",
+    "oem_part_number": "42002-0024S",
+    "primary_part_search_query": "Pentair MasterTemp 42002-0024S Stack Flue Sensor replacement",
+    "required_tool_name": "Digital Multimeter & 1/2-inch Deep Well Socket",
+    "required_tool_search_query": "Digital Multimeter and Deep Well Socket Wrench Set",
+    "consumable_name": "High-Temperature Anti-Seize Thread Lubricant",
+    "consumable_search_query": "High Temperature Anti-Seize Thread Lubricant 1600F",
+    "asin_part": "B004W4TUG4",
+    "asin_tool": "B0002STR36",
+    "asin_consumable": "B0002UEPVI",
+    "faq_questions": [
+      {
+        "question": "Can I bypass the Pentair SFS sensor with a resistor?",
+        "answer": "Never bypass the stack flue sensor. It protects against melting the internal composite header and causing a catastrophic combustion box fire."
+      },
+      {
+        "question": "What causes the SFS code besides a bad sensor probe?",
+        "answer": "A calcified thermal regulator that remains stuck open, restricting cool pool water flow through the heat exchanger tubes."
+      }
+    ],
+    "slug": "pentair-mastertemp-400-250-error-code-sfs-fix-2",
+    "brand_slug": "pentair",
+    "equipment_slug": "pool-heater",
+    "part_affiliate_url": "https://www.amazon.com/s?k=Pentair+MasterTemp+42002-0024S+Stack+Flue+Sensor+replacement&tag=fixmycode-20",
+    "tool_affiliate_url": "https://www.amazon.com/s?k=Digital+Multimeter+and+Deep+Well+Socket+Wrench+Set&tag=fixmycode-20",
+    "consumable_affiliate_url": "https://www.amazon.com/s?k=High+Temperature+Anti-Seize+Thread+Lubricant+1600F&tag=fixmycode-20",
+    "bundle_cart_url": "https://www.amazon.com/gp/aws/cart/add.html?AssociateTag=fixmycode-20&ASIN.1=B004W4TUG4&Quantity.1=1&ASIN.2=B0002STR36&Quantity.2=1&ASIN.3=B0002UEPVI&Quantity.3=1",
+    "has_asin_bundle": true,
+    "primary_part_affiliate_url": "https://www.amazon.com/s?k=Pentair+MasterTemp+42002-0024S+Stack+Flue+Sensor+replacement&tag=fixmycode-20",
+    "required_tool_affiliate_url": "https://www.amazon.com/s?k=Digital+Multimeter+and+Deep+Well+Socket+Wrench+Set&tag=fixmycode-20",
+    "source_file": "demo_seed_manual.pdf",
+    "source_hash": "demo_seed_pentair_sfs",
+    "extracted_at": "2026-10-21T14:14:20.490843+00:00"
+  },
+  {
+    "brand": "Pentair",
+    "equipment_type": "Pool Heater",
+    "model_series": "MasterTemp / Max-E-Therm",
+    "error_code": "HLS",
+    "short_symptom": "High Limit Switch Opened / Overheating Exchanger",
+    "plain_english_meaning": "The internal water temperature inside the heat exchanger manifold exceeded 135°F (57°C), tripping the bi-metallic high limit safety switch.",
+    "diy_difficulty": "Medium (30-45 mins)",
+    "estimated_pro_repair_cost": "$180 - $290",
+    "diagnostic_and_fix_steps": [
+      "Switch off electrical power to the heater at the subpanel breaker.",
+      "Check that the pool filter pump is primed and operating at full RPM with clean cartridge filters.",
+      "Remove the water header manifold cover and check continuity across both high limit switch terminals.",
+      "Replace the 135°F or 150°F thermal high limit switch if continuity fails to restore once the unit cools.",
+      "Clean the internal bypass valve spring mechanism to restore correct water velocity through copper tubes."
+    ],
+    "primary_part_name": "High Limit Switch 135°F Assembly",
+    "oem_part_number": "42001-0063S",
+    "primary_part_search_query": "Pentair MasterTemp 42001-0063S High Limit Switch 135F replacement",
+    "required_tool_name": "Nut Driver 5/16-inch & Multimeter",
+    "required_tool_search_query": "Nut Driver Set 5/16 and Electrical Continuity Tester",
+    "consumable_name": "Heat Transfer Compound Paste",
+    "consumable_search_query": "Thermal Heatsink Grease Compound Paste",
+    "asin_part": "B002FS38DY",
+    "asin_tool": "B00009WNTK",
+    "asin_consumable": "B0795DP122",
+    "faq_questions": [
+      {
+        "question": "Why does HLS trip only when the pool pump turns off?",
+        "answer": "If the heater fires right as the filtration timer cuts pump power, residual heat boils standing water in the tubes, instantly opening the high limit switch."
+      },
+      {
+        "question": "How do I verify if the HLS switch is genuinely defective?",
+        "answer": "After the heater is completely cold, use an ohmmeter across the two brass terminals. It must read 0 ohms (closed circuit)."
+      }
+    ],
+    "slug": "pentair-mastertemp-max-e-therm-error-code-hls-fix-2",
+    "brand_slug": "pentair",
+    "equipment_slug": "pool-heater",
+    "part_affiliate_url": "https://www.amazon.com/s?k=Pentair+MasterTemp+42001-0063S+High+Limit+Switch+135F+replacement&tag=fixmycode-20",
+    "tool_affiliate_url": "https://www.amazon.com/s?k=Nut+Driver+Set+5%2F16+and+Electrical+Continuity+Tester&tag=fixmycode-20",
+    "consumable_affiliate_url": "https://www.amazon.com/s?k=Thermal+Heatsink+Grease+Compound+Paste&tag=fixmycode-20",
+    "bundle_cart_url": "https://www.amazon.com/gp/aws/cart/add.html?AssociateTag=fixmycode-20&ASIN.1=B002FS38DY&Quantity.1=1&ASIN.2=B00009WNTK&Quantity.2=1&ASIN.3=B0795DP122&Quantity.3=1",
+    "has_asin_bundle": true,
+    "primary_part_affiliate_url": "https://www.amazon.com/s?k=Pentair+MasterTemp+42001-0063S+High+Limit+Switch+135F+replacement&tag=fixmycode-20",
+    "required_tool_affiliate_url": "https://www.amazon.com/s?k=Nut+Driver+Set+5%2F16+and+Electrical+Continuity+Tester&tag=fixmycode-20",
+    "source_file": "demo_seed_manual.pdf",
+    "source_hash": "demo_seed_pentair_hls",
+    "extracted_at": "2026-10-21T14:14:20.490843+00:00"
+  },
+  {
+    "brand": "Breville",
+    "equipment_type": "Espresso Machine",
+    "model_series": "Barista Touch / Oracle Touch (BES880 / BES990)",
+    "error_code": "ER03",
+    "short_symptom": "Steam Boiler Overheating / NTC Thermistor Open Circuit",
+    "plain_english_meaning": "The microcontroller detected abnormal voltage or open circuit on the dedicated steam boiler NTC temperature probe, disabling heating to prevent thermal runaway.",
+    "diy_difficulty": "Hard (Pro Recommended)",
+    "estimated_pro_repair_cost": "$210 - $320",
+    "diagnostic_and_fix_steps": [
+      "Unplug the espresso machine and allow dual boilers to depressurize and cool completely for 4 hours.",
+      "Remove the top bean hopper, rear water reservoir, and 5 perimeter Torx screws to slide off the stainless steel casing.",
+      "Locate the steam boiler on the right side and inspect the NTC temperature sensor wire clip for mineral corrosion or steam leak burns.",
+      "Measure resistance across the two sensor pins; it should read approximately 50k to 100k ohms at room temperature (25°C).",
+      "Unthread the brass thermal sensor probe, replace the O-ring, and insert the new replacement sensor harness."
+    ],
+    "primary_part_name": "Boiler NTC Temperature Sensor Probe",
+    "oem_part_number": "SP0001815",
+    "primary_part_search_query": "Breville Barista Oracle Touch NTC Temperature Sensor replacement",
+    "required_tool_name": "Torx T10 / T15 Security Drivers & Needle Nose Pliers",
+    "required_tool_search_query": "Precision Torx Security Screwdriver Set T10 T15",
+    "consumable_name": "Food-Grade EPDM High Temp O-Rings #008",
+    "consumable_search_query": "Food Grade High Temp Silicone EPDM O-Ring Assortment Breville",
+    "asin_part": "B0874W4FGT",
+    "asin_tool": "B07BMMXFLC",
+    "asin_consumable": "B01G1DFJNK",
+    "faq_questions": [
+      {
+        "question": "Can severe scale buildup trigger Breville ER03?",
+        "answer": "Yes, dense calcium scale insulating the heating element wall creates localized hot spots that disrupt thermistor resistance readings."
+      },
+      {
+        "question": "Can I continue pulling espresso shots with an ER03 fault?",
+        "answer": "No, the firmware initiates an emergency safety lockout on both group head and steam thermoblocks until the circuit is repaired."
+      }
+    ],
+    "slug": "breville-barista-touch-oracle-touch-bes880-b-error-code-er03-fix-2",
+    "brand_slug": "breville",
+    "equipment_slug": "espresso-machine",
+    "part_affiliate_url": "https://www.amazon.com/s?k=Breville+Barista+Oracle+Touch+NTC+Temperature+Sensor+replacement&tag=fixmycode-20",
+    "tool_affiliate_url": "https://www.amazon.com/s?k=Precision+Torx+Security+Screwdriver+Set+T10+T15&tag=fixmycode-20",
+    "consumable_affiliate_url": "https://www.amazon.com/s?k=Food+Grade+High+Temp+Silicone+EPDM+O-Ring+Assortment+Breville&tag=fixmycode-20",
+    "bundle_cart_url": "https://www.amazon.com/gp/aws/cart/add.html?AssociateTag=fixmycode-20&ASIN.1=B0874W4FGT&Quantity.1=1&ASIN.2=B07BMMXFLC&Quantity.2=1&ASIN.3=B01G1DFJNK&Quantity.3=1",
+    "has_asin_bundle": true,
+    "primary_part_affiliate_url": "https://www.amazon.com/s?k=Breville+Barista+Oracle+Touch+NTC+Temperature+Sensor+replacement&tag=fixmycode-20",
+    "required_tool_affiliate_url": "https://www.amazon.com/s?k=Precision+Torx+Security+Screwdriver+Set+T10+T15&tag=fixmycode-20",
+    "source_file": "demo_seed_manual.pdf",
+    "source_hash": "demo_seed_breville_er03",
+    "extracted_at": "2026-10-21T14:14:20.490843+00:00"
+  },
+  {
+    "brand": "Breville",
+    "equipment_type": "Espresso Machine",
+    "model_series": "Dual Boiler (BES920XL)",
+    "error_code": "ER01",
+    "short_symptom": "Group Head Flow Meter Signal Failure",
+    "plain_english_meaning": "The volumetric flow meter is not sending pulse signals to the PCB while the vibration pump is energized, indicating an air lock, scale blockage, or damaged impeller hall sensor.",
+    "diy_difficulty": "Medium (30-45 mins)",
+    "estimated_pro_repair_cost": "$175 - $250",
+    "diagnostic_and_fix_steps": [
+      "Unplug the machine from mains electrical supply.",
+      "Remove the rear access panel to expose the cold water tubing harness.",
+      "Disconnect the flow meter inlet and outlet silicon tubes; inspect the 1mm internal orifice for lime scale flakes.",
+      "Open the plastic flow meter housing and verify the internal miniature magnetic impeller spins freely on its ceramic pin.",
+      "Swap the 3-pin Digmesa flow meter assembly if the internal hall effect chip failed."
+    ],
+    "primary_part_name": "Digmesa Flow Meter Turbine Assembly",
+    "oem_part_number": "SP0001509",
+    "primary_part_search_query": "Breville Dual Boiler BES920XL Digmesa Flow Meter replacement",
+    "required_tool_name": "Hose Pinch Clamps & Phillips #1 Screwdriver",
+    "required_tool_search_query": "Micro Hose Clamp Pliers and Phillips Precision Screwdriver",
+    "consumable_name": "Organic Sulfamic Acid Espresso Descaler",
+    "consumable_search_query": "Commercial Espresso Machine Descaling Powder Sulfamic Acid",
+    "asin_part": "B0868Z2876",
+    "asin_tool": "B004OVN078",
+    "asin_consumable": "B003ATX0B0",
+    "faq_questions": [
+      {
+        "question": "How do I fix a vapor lock causing ER01 after descaling?",
+        "answer": "Run the hot water wand dispensing cycle continuously for 30 seconds to force trapped air bubbles out of the flow meter chamber."
+      },
+      {
+        "question": "Does vinegar work to clean the Breville flow meter?",
+        "answer": "Avoid vinegar; acetic acid ruins internal silicone seals and leaves residual odors. Use certified espresso machine descalers."
+      }
+    ],
+    "slug": "breville-dual-boiler-bes920xl-error-code-er01-fix-2",
+    "brand_slug": "breville",
+    "equipment_slug": "espresso-machine",
+    "part_affiliate_url": "https://www.amazon.com/s?k=Breville+Dual+Boiler+BES920XL+Digmesa+Flow+Meter+replacement&tag=fixmycode-20",
+    "tool_affiliate_url": "https://www.amazon.com/s?k=Micro+Hose+Clamp+Pliers+and+Phillips+Precision+Screwdriver&tag=fixmycode-20",
+    "consumable_affiliate_url": "https://www.amazon.com/s?k=Commercial+Espresso+Machine+Descaling+Powder+Sulfamic+Acid&tag=fixmycode-20",
+    "bundle_cart_url": "https://www.amazon.com/gp/aws/cart/add.html?AssociateTag=fixmycode-20&ASIN.1=B0868Z2876&Quantity.1=1&ASIN.2=B004OVN078&Quantity.2=1&ASIN.3=B003ATX0B0&Quantity.3=1",
+    "has_asin_bundle": true,
+    "primary_part_affiliate_url": "https://www.amazon.com/s?k=Breville+Dual+Boiler+BES920XL+Digmesa+Flow+Meter+replacement&tag=fixmycode-20",
+    "required_tool_affiliate_url": "https://www.amazon.com/s?k=Micro+Hose+Clamp+Pliers+and+Phillips+Precision+Screwdriver&tag=fixmycode-20",
+    "source_file": "demo_seed_manual.pdf",
+    "source_hash": "demo_seed_breville_er01",
+    "extracted_at": "2026-10-21T14:14:20.490843+00:00"
+  },
+  {
+    "brand": "Hayward",
+    "equipment_type": "Pool Pump",
+    "model_series": "TriStar VS / Super Pump VS",
+    "error_code": "Err 0x0002",
+    "short_symptom": "Drive Over-Current / Motor Rotor Stalled",
+    "plain_english_meaning": "The variable speed drive inverter module detected excessive phase current draw to the brushless motor, triggered by physical debris jamming the wet-end impeller or damaged motor bearings.",
+    "diy_difficulty": "Easy (15 mins)",
+    "estimated_pro_repair_cost": "$240 - $380",
+    "diagnostic_and_fix_steps": [
+      "Disconnect main 230V power to the pump at the breaker panel and wait 5 minutes for drive capacitors to discharge.",
+      "Relieve filter tank pressure and remove the clear strainer pot lid.",
+      "Reach your fingers through the front suction port into the center eye of the closed impeller to remove pine needles, acorns, or pebbles.",
+      "Remove the motor shaft rear plastic cap and use a flathead screwdriver or 1/2-inch wrench to verify the rotor rotates with minimal resistance.",
+      "Inspect the variable speed drive wiring harness terminals for burnt contacts or corrosion."
+    ],
+    "primary_part_name": "Closed Vane Impeller Replacement",
+    "oem_part_number": "SPX3205C",
+    "primary_part_search_query": "Hayward TriStar VS SPX3205C Impeller Assembly replacement",
+    "required_tool_name": "Impeller Wedge Tool & 9/16-inch Open End Wrench",
+    "required_tool_search_query": "Pool Pump Impeller Removal Tool and Open End Wrench Set",
+    "consumable_name": "Silicone O-Ring Lube & Shaft Seal Sealant",
+    "consumable_search_query": "Pool Pump O-Ring Lube and Ceramic Shaft Seal Kit",
+    "asin_part": "B0032JTC1W",
+    "asin_tool": "B003X5M7F8",
+    "asin_consumable": "B002K6P0DO",
+    "faq_questions": [
+      {
+        "question": "What if the impeller is clear but Err 0x0002 persists?",
+        "answer": "If the shaft turns smoothly by hand but the error trips instantly when energized, the drive's integrated IPM (Intelligent Power Module) inverter has failed."
+      },
+      {
+        "question": "Can low electrical line voltage cause Err 0x0002?",
+        "answer": "Yes, if the supply drops below 208V under high head pressure load, current spikes proportionally to maintain motor torque."
+      }
+    ],
+    "slug": "hayward-tristar-vs-super-pump-vs-error-code-err-0x0002-fix-2",
+    "brand_slug": "hayward",
+    "equipment_slug": "pool-pump",
+    "part_affiliate_url": "https://www.amazon.com/s?k=Hayward+TriStar+VS+SPX3205C+Impeller+Assembly+replacement&tag=fixmycode-20",
+    "tool_affiliate_url": "https://www.amazon.com/s?k=Pool+Pump+Impeller+Removal+Tool+and+Open+End+Wrench+Set&tag=fixmycode-20",
+    "consumable_affiliate_url": "https://www.amazon.com/s?k=Pool+Pump+O-Ring+Lube+and+Ceramic+Shaft+Seal+Kit&tag=fixmycode-20",
+    "bundle_cart_url": "https://www.amazon.com/gp/aws/cart/add.html?AssociateTag=fixmycode-20&ASIN.1=B0032JTC1W&Quantity.1=1&ASIN.2=B003X5M7F8&Quantity.2=1&ASIN.3=B002K6P0DO&Quantity.3=1",
+    "has_asin_bundle": true,
+    "primary_part_affiliate_url": "https://www.amazon.com/s?k=Hayward+TriStar+VS+SPX3205C+Impeller+Assembly+replacement&tag=fixmycode-20",
+    "required_tool_affiliate_url": "https://www.amazon.com/s?k=Pool+Pump+Impeller+Removal+Tool+and+Open+End+Wrench+Set&tag=fixmycode-20",
+    "source_file": "demo_seed_manual.pdf",
+    "source_hash": "demo_seed_hayward_err-0x0002",
+    "extracted_at": "2026-10-21T14:14:20.491370+00:00"
+  },
+  {
+    "brand": "Hayward",
+    "equipment_type": "Pool Pump",
+    "model_series": "EcoStar VS (SP3400VSP)",
+    "error_code": "Err 0x0021",
+    "short_symptom": "Drive Heat Sink Over-Temperature",
+    "plain_english_meaning": "The internal aluminum heat sink temperature of the variable speed drive exceeded 185°F (85°C), forcing an automatic safety shutdown to protect the microprocessor.",
+    "diy_difficulty": "Easy (15 mins)",
+    "estimated_pro_repair_cost": "$150 - $220",
+    "diagnostic_and_fix_steps": [
+      "De-energize pump power at the circuit breaker.",
+      "Inspect the rear motor fan shroud for spider webs, leaves, or mulch restricting cooling airflow.",
+      "Ensure the pump is not completely enclosed in an unventilated shed or exposed to direct reflective afternoon sun without a heat shield.",
+      "Blow out aluminum heat sink cooling fins using compressed air or an electric duster.",
+      "Verify the motor rear centrifugal cooling fan is intact and not cracked or spinning loose on the shaft."
+    ],
+    "primary_part_name": "Motor Cooling Fan & Shroud Assembly",
+    "oem_part_number": "SPX3400FAN",
+    "primary_part_search_query": "Hayward EcoStar SPX3400FAN Motor Cooling Fan replacement",
+    "required_tool_name": "Compressed Air Can & 1/4-inch Nut Driver",
+    "required_tool_search_query": "Compressed Air Duster Can and Nut Driver Set",
+    "consumable_name": "UV-Resistant Protective Pump Equipment Cover",
+    "consumable_search_query": "UV Proof Waterproof Pool Pump Motor Sun Shield Cover",
+    "asin_part": "B008E6OQ04",
+    "asin_tool": "B0000AE67M",
+    "asin_consumable": "B08B1M8K2T",
+    "faq_questions": [
+      {
+        "question": "Will the pump automatically restart after cooling down?",
+        "answer": "Yes, once internal heat sink temperatures drop back below 150°F (65°C), the drive clears 0x0021 and resumes its scheduled timer profile."
+      },
+      {
+        "question": "Can running the pump at minimum RPM in summer cause 0x0021?",
+        "answer": "Yes, because the internal fan is shaft-driven. At 800 RPM in 105°F ambient heat, airflow is insufficient for continuous heavy loads."
+      }
+    ],
+    "slug": "hayward-ecostar-vs-sp3400vsp-error-code-err-0x0021-fix-2",
+    "brand_slug": "hayward",
+    "equipment_slug": "pool-pump",
+    "part_affiliate_url": "https://www.amazon.com/s?k=Hayward+EcoStar+SPX3400FAN+Motor+Cooling+Fan+replacement&tag=fixmycode-20",
+    "tool_affiliate_url": "https://www.amazon.com/s?k=Compressed+Air+Duster+Can+and+Nut+Driver+Set&tag=fixmycode-20",
+    "consumable_affiliate_url": "https://www.amazon.com/s?k=UV+Proof+Waterproof+Pool+Pump+Motor+Sun+Shield+Cover&tag=fixmycode-20",
+    "bundle_cart_url": "https://www.amazon.com/gp/aws/cart/add.html?AssociateTag=fixmycode-20&ASIN.1=B008E6OQ04&Quantity.1=1&ASIN.2=B0000AE67M&Quantity.2=1&ASIN.3=B08B1M8K2T&Quantity.3=1",
+    "has_asin_bundle": true,
+    "primary_part_affiliate_url": "https://www.amazon.com/s?k=Hayward+EcoStar+SPX3400FAN+Motor+Cooling+Fan+replacement&tag=fixmycode-20",
+    "required_tool_affiliate_url": "https://www.amazon.com/s?k=Compressed+Air+Duster+Can+and+Nut+Driver+Set&tag=fixmycode-20",
+    "source_file": "demo_seed_manual.pdf",
+    "source_hash": "demo_seed_hayward_err-0x0021",
+    "extracted_at": "2026-10-21T14:14:20.491370+00:00"
+  },
+  {
+    "brand": "Navien",
+    "equipment_type": "Tankless Water Heater",
+    "model_series": "NPE-240A / NPE-210S / NPE-A2",
+    "error_code": "E003",
+    "short_symptom": "Ignition Failure / Flame Not Established",
+    "plain_english_meaning": "The burner controller attempted spark ignition 3 consecutive times but the flame rod sensor detected no ionization current within 5 seconds, indicating lack of gas supply or dirty flame rod.",
+    "diy_difficulty": "Medium (30-45 mins)",
+    "estimated_pro_repair_cost": "$180 - $310",
+    "diagnostic_and_fix_steps": [
+      "Turn off electrical power switch beneath the unit and verify gas supply shutoff valve is fully open in parallel with the pipe.",
+      "Check that the gas meter or propane regulator isn't frozen or locked out due to low tank pressure.",
+      "Remove the 4 front cover thumb screws, disconnect the high-voltage spark electrode and flame ionization rod cables.",
+      "Unscrew the flame rod assembly from the burner manifold and clean carbon/oxidation off the metal probes using ultra-fine #0000 steel wool.",
+      "Verify static gas inlet pressure with a digital manometer (3.5 to 10.5 inches Water Column for Natural Gas; 8.0 to 13.5 for Propane)."
+    ],
+    "primary_part_name": "Dual Flame Rod and Ignition Electrode Assembly",
+    "oem_part_number": "30010972A",
+    "primary_part_search_query": "Navien NPE 30010972A Flame Rod Ignition Electrode replacement",
+    "required_tool_name": "Gas Manometer & Phillips #2 Magnetic Screwdriver",
+    "required_tool_search_query": "Digital Gas Manometer Pressure Tester and Phillips Screwdriver",
+    "consumable_name": "#0000 Ultra-Fine Steel Wool & Burner Gasket",
+    "consumable_search_query": "0000 Grade Steel Wool Pads and High Temp Gas Burner Gasket",
+    "asin_part": "B07Q5W4G87",
+    "asin_tool": "B0767R6LNY",
+    "asin_consumable": "B075FDF9R6",
+    "faq_questions": [
+      {
+        "question": "Can a clogged intake air filter cause Navien E003?",
+        "answer": "Yes, a dirty stainless mesh air intake screen starves the premix burner of oxygen, preventing the initial gas-air spark from catching."
+      },
+      {
+        "question": "Why does E003 only happen during windy storms?",
+        "answer": "Strong wind gusts down an improper two-pipe venting termination without an approved rain cap can blow out the burner ignition flame."
+      }
+    ],
+    "slug": "navien-npe-240a-npe-210s-npe-a2-error-code-e003-fix-2",
+    "brand_slug": "navien",
+    "equipment_slug": "tankless-water-heater",
+    "part_affiliate_url": "https://www.amazon.com/s?k=Navien+NPE+30010972A+Flame+Rod+Ignition+Electrode+replacement&tag=fixmycode-20",
+    "tool_affiliate_url": "https://www.amazon.com/s?k=Digital+Gas+Manometer+Pressure+Tester+and+Phillips+Screwdriver&tag=fixmycode-20",
+    "consumable_affiliate_url": "https://www.amazon.com/s?k=0000+Grade+Steel+Wool+Pads+and+High+Temp+Gas+Burner+Gasket&tag=fixmycode-20",
+    "bundle_cart_url": "https://www.amazon.com/gp/aws/cart/add.html?AssociateTag=fixmycode-20&ASIN.1=B07Q5W4G87&Quantity.1=1&ASIN.2=B0767R6LNY&Quantity.2=1&ASIN.3=B075FDF9R6&Quantity.3=1",
+    "has_asin_bundle": true,
+    "primary_part_affiliate_url": "https://www.amazon.com/s?k=Navien+NPE+30010972A+Flame+Rod+Ignition+Electrode+replacement&tag=fixmycode-20",
+    "required_tool_affiliate_url": "https://www.amazon.com/s?k=Digital+Gas+Manometer+Pressure+Tester+and+Phillips+Screwdriver&tag=fixmycode-20",
+    "source_file": "demo_seed_manual.pdf",
+    "source_hash": "demo_seed_navien_e003",
+    "extracted_at": "2026-10-21T14:14:20.491370+00:00"
+  },
+  {
+    "brand": "Navien",
+    "equipment_type": "Tankless Water Heater",
+    "model_series": "NPE-240A / NPE-180A",
+    "error_code": "E110",
+    "short_symptom": "Abnormal Flue Exhaust Gas Temperature",
+    "plain_english_meaning": "Flue gas temperature sensor detected exhaust temps exceeding 149°F (65°C) for PVC or 194°F (90°C) for CPVC/Polypropylene, indicating lime scale insulating the secondary condensing heat exchanger.",
+    "diy_difficulty": "Medium (30-45 mins)",
+    "estimated_pro_repair_cost": "$210 - $340",
+    "diagnostic_and_fix_steps": [
+      "Power down the unit and isolate cold and hot plumbing service valves.",
+      "Perform a thorough 60-minute recirculation flush using 4 gallons of food-grade virgin white vinegar or citric acid solution.",
+      "Unscrew the flue gas temperature thermistor located directly on the upper PVC vent collar.",
+      "Inspect the thermistor tip for soot or condensation sediment and measure resistance against temperature curve specifications.",
+      "Check the two-stage condensate trap and neutralize drain lines for mineral sediment blockages."
+    ],
+    "primary_part_name": "Flue Exhaust Gas Thermistor Sensor",
+    "oem_part_number": "30008577A",
+    "primary_part_search_query": "Navien NPE Flue Gas Temperature Sensor 30008577A replacement",
+    "required_tool_name": "Tankless Water Heater Submersible Flush Pump Kit",
+    "required_tool_search_query": "Tankless Water Heater Flush Kit Submersible Pump and Hoses",
+    "consumable_name": "Food-Grade Citric Acid Tankless Descaler Solution",
+    "consumable_search_query": "Tankless Water Heater Descaler Solution Citric Acid Powder",
+    "asin_part": "B07P962G87",
+    "asin_tool": "B0743B7Z7K",
+    "asin_consumable": "B07R8T9V9W",
+    "faq_questions": [
+      {
+        "question": "How often should I flush my Navien heater to prevent E110?",
+        "answer": "Annual flushing is mandatory. In hard water areas (>120 mg/L calcium carbonate), flush every 6 to 9 months to maintain thermal transfer efficiency."
+      },
+      {
+        "question": "Will E110 damage my PVC exhaust pipes?",
+        "answer": "E110 is an active safety protection feature designed specifically to shut down the burner before hot exhaust gases can soften or warp standard schedule 40 PVC venting."
+      }
+    ],
+    "slug": "navien-npe-240a-npe-180a-error-code-e110-fix-2",
+    "brand_slug": "navien",
+    "equipment_slug": "tankless-water-heater",
+    "part_affiliate_url": "https://www.amazon.com/s?k=Navien+NPE+Flue+Gas+Temperature+Sensor+30008577A+replacement&tag=fixmycode-20",
+    "tool_affiliate_url": "https://www.amazon.com/s?k=Tankless+Water+Heater+Flush+Kit+Submersible+Pump+and+Hoses&tag=fixmycode-20",
+    "consumable_affiliate_url": "https://www.amazon.com/s?k=Tankless+Water+Heater+Descaler+Solution+Citric+Acid+Powder&tag=fixmycode-20",
+    "bundle_cart_url": "https://www.amazon.com/gp/aws/cart/add.html?AssociateTag=fixmycode-20&ASIN.1=B07P962G87&Quantity.1=1&ASIN.2=B0743B7Z7K&Quantity.2=1&ASIN.3=B07R8T9V9W&Quantity.3=1",
+    "has_asin_bundle": true,
+    "primary_part_affiliate_url": "https://www.amazon.com/s?k=Navien+NPE+Flue+Gas+Temperature+Sensor+30008577A+replacement&tag=fixmycode-20",
+    "required_tool_affiliate_url": "https://www.amazon.com/s?k=Tankless+Water+Heater+Flush+Kit+Submersible+Pump+and+Hoses&tag=fixmycode-20",
+    "source_file": "demo_seed_manual.pdf",
+    "source_hash": "demo_seed_navien_e110",
+    "extracted_at": "2026-10-21T14:14:20.491370+00:00"
+  }
+]

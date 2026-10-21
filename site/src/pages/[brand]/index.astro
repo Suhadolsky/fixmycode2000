@@ -1,0 +1,139 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import errorsDb from '../../data/errors_db.json';
+
+export async function getStaticPaths() {
+  // Collect unique brand slugs
+  const brandsMap = new Map<string, { brandName: string; brandSlug: string; items: any[] }>();
+
+  errorsDb.forEach((item) => {
+    const slug = item.brand_slug || item.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    if (!brandsMap.has(slug)) {
+      brandsMap.set(slug, {
+        brandName: item.brand,
+        brandSlug: slug,
+        items: [],
+      });
+    }
+    brandsMap.get(slug)!.items.push(item);
+  });
+
+  return Array.from(brandsMap.values()).map((entry) => ({
+    params: { brand: entry.brandSlug },
+    props: {
+      brandName: entry.brandName,
+      brandSlug: entry.brandSlug,
+      items: entry.items,
+    },
+  }));
+}
+
+interface Props {
+  brandName: string;
+  brandSlug: string;
+  items: any[];
+}
+
+const { brandName, brandSlug, items } = Astro.props;
+---
+
+<MainLayout
+  title={`${brandName} Error Codes & Service Manual Troubleshooting Directory`}
+  description={`Complete technical troubleshooting directory for ${brandName} equipment. Fast diagnostic steps, OEM error code meanings, and replacement part links.`}
+>
+  <!-- Brand Header -->
+  <section class="bg-slate-900 text-white border-b border-slate-800 py-10 sm:py-14">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs font-mono text-slate-400 mb-4">
+        <a href="/" class="hover:text-amber-400 transition">Home</a>
+        <span>/</span>
+        <span class="text-amber-400">{brandName}</span>
+      </nav>
+
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-slate-800 text-amber-400 font-mono text-xs mb-3 border border-slate-700">
+            <span>OFFICIAL TECH SHEET PARSER</span>
+            <span>•</span>
+            <span>{items.length} CODES INDEXED</span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-white">
+            {brandName} Service Manual Error Codes
+          </h1>
+          <p class="text-slate-400 text-sm sm:text-base mt-2 max-w-2xl">
+            Technician diagnostic flowcharts, sensor resistance values, and OEM replacement parts for {brandName} appliances and equipment.
+          </p>
+        </div>
+
+        <a
+          href="/"
+          class="inline-flex items-center gap-2 text-xs font-mono text-slate-300 hover:text-white px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 transition"
+        >
+          &larr; Back to All Brands
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Brand Codes Table -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">{brandName} Troubleshooting Guides</h2>
+          <p class="text-xs text-slate-500">Select an error code below for the step-by-step repair guide and parts list</p>
+        </div>
+        <span class="text-xs font-mono bg-slate-200 text-slate-800 px-2.5 py-1 rounded font-medium">
+          {items.length} Active Guides
+        </span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-100/70 text-slate-700 text-xs font-mono uppercase border-b border-slate-200">
+            <tr>
+              <th class="py-3.5 px-4 font-semibold">Error Code</th>
+              <th class="py-3.5 px-4 font-semibold">Model Series</th>
+              <th class="py-3.5 px-4 font-semibold">Symptom</th>
+              <th class="py-3.5 px-4 font-semibold">Required Part</th>
+              <th class="py-3.5 px-4 font-semibold text-right">Fix Guide</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 font-sans">
+            {items.map((item) => (
+              <tr class="hover:bg-amber-50/50 transition">
+                <td class="py-4 px-4 font-mono font-bold text-slate-900">
+                  <span class="inline-block bg-slate-100 border border-slate-300 px-2.5 py-1 rounded text-amber-700 font-mono text-sm">
+                    {item.error_code}
+                  </span>
+                </td>
+                <td class="py-4 px-4 text-xs font-mono text-slate-700 font-medium max-w-xs">
+                  {item.model_series}
+                </td>
+                <td class="py-4 px-4 text-slate-800 max-w-sm text-sm">
+                  <div class="font-medium text-slate-900">{item.short_symptom}</div>
+                  <div class="text-xs text-slate-500 line-clamp-1 mt-0.5">{item.plain_english_meaning}</div>
+                </td>
+                <td class="py-4 px-4 text-xs text-slate-900">
+                  <div class="font-semibold">{item.primary_part_name}</div>
+                  {item.oem_part_number && (
+                    <div class="font-mono text-slate-500 text-[11px]">OEM: {item.oem_part_number}</div>
+                  )}
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <a
+                    href={`/${brandSlug}/${item.slug}/`}
+                    class="inline-flex items-center gap-1 text-xs font-bold font-mono px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white shadow-xs transition"
+                  >
+                    Fix Guide &rarr;
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</MainLayout>
