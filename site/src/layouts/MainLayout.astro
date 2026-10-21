@@ -3,13 +3,17 @@ interface Props {
   title: string;
   description?: string;
   canonicalUrl?: string;
+  fullTitle?: boolean;
 }
 
 const {
   title,
-  description = "Authoritative equipment service manual troubleshooting and error code database. Step-by-step repair guides, verified OEM parts, and diagnostic procedures.",
+  description = "Instant OEM troubleshooting guides, error code diagnostics, and exact replacement part numbers for HVAC, pool heaters, dishwashers, and appliances.",
   canonicalUrl = Astro.url.href,
+  fullTitle = false,
 } = Astro.props;
+
+const pageTitle = fullTitle || title.includes("FixMyCode") ? title : `${title} | FixMyCode by GetTinyTool`;
 ---
 
 <!doctype html>
@@ -17,11 +21,11 @@ const {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} | FixMyCode Database</title>
+    <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <slot name="head" />
   </head>
   <body class="min-h-screen flex flex-col font-sans text-slate-900 bg-slate-50">
