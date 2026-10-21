@@ -1,0 +1,8 @@
+{
+  "name": "fixmycode2000",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix site install && npm --prefix site run build"
+  }
+}
