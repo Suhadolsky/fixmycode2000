@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://fixmycode.com/sitemap-index.xml
+Sitemap: https://gettinytool.com/sitemap.xml
+Sitemap: https://gettinytool.com/sitemap-index.xml

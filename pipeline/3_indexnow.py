@@ -48,7 +48,7 @@ def load_environment() -> tuple[str, str]:
     """Load and validate required environment variables."""
     load_dotenv(BASE_DIR / ".env")
     key = os.getenv("INDEXNOW_KEY", "").strip()
-    domain = os.getenv("SITE_DOMAIN", "https://fixmycode.com").strip().rstrip("/")
+    domain = os.getenv("SITE_DOMAIN", "https://gettinytool.com").strip().rstrip("/")
     return key, domain
 
 
