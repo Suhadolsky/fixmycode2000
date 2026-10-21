@@ -30,10 +30,11 @@ const {
 } = Astro.props;
 
 // Build dynamic Amazon search URL prioritizing OEM Part Number
+const cleanPart = partName.replace(/\(.*?\)/g, '').trim();
 const hasValidOem = oemPartNumber && !oemPartNumber.toLowerCase().includes('check') && oemPartNumber !== 'N/A';
 const partSearchQuery = hasValidOem
-  ? `${oemPartNumber} ${brand} ${partName}`
-  : `${brand} ${modelSeries} ${partName}`;
+  ? `${brand} ${oemPartNumber} ${cleanPart}`
+  : `${brand} ${modelSeries} ${cleanPart}`;
 const primaryAmazonUrl = partAffiliateUrl || `https://www.amazon.com/s?k=${encodeURIComponent(partSearchQuery)}&tag=${amazonTag}`;
 
 // Secondary Tool search URL

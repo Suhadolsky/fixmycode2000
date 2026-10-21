@@ -4,30 +4,46 @@ import errorsDb from '../data/errors_db.json';
 
 // Group data by Brand and Equipment Type
 const totalCodes = errorsDb.length;
-const brandsMap = new Map<string, number>();
-const equipmentMap = new Map<string, number>();
+const brandsMap = new Map<string, { name: string; slug: string; count: number; equipmentType: string }>();
+const equipmentMap = new Map<string, { name: string; count: number; brands: Set<string> }>();
 
-errorsDb.forEach((item) => {
+errorsDb.forEach((item: any) => {
   const brand = item.brand;
-  brandsMap.set(brand, (brandsMap.get(brand) || 0) + 1);
+  const bSlug = item.brand_slug || brand.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  
+  if (!brandsMap.has(brand)) {
+    brandsMap.set(brand, { name: brand, slug: bSlug, count: 0, equipmentType: item.equipment_type });
+  }
+  brandsMap.get(brand)!.count += 1;
 
   const equip = item.equipment_type;
-  equipmentMap.set(equip, (equipmentMap.get(equip) || 0) + 1);
+  if (!equipmentMap.has(equip)) {
+    equipmentMap.set(equip, { name: equip, count: 0, brands: new Set<string>() });
+  }
+  const eqEntry = equipmentMap.get(equip)!;
+  eqEntry.count += 1;
+  eqEntry.brands.add(brand);
 });
 
-const brandsList = Array.from(brandsMap.entries()).map(([name, count]) => ({
-  name,
-  slug: itemSlug(name),
-  count,
-}));
+const brandsList = Array.from(brandsMap.values()).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 
-const equipmentList = Array.from(equipmentMap.entries()).map(([name, count]) => ({
-  name,
-  count,
-}));
+const equipmentList = Array.from(equipmentMap.values())
+  .map(eq => ({
+    name: eq.name,
+    count: eq.count,
+    brands: Array.from(eq.brands).slice(0, 5),
+  }))
+  .sort((a, b) => b.count - a.count);
 
-function itemSlug(str: string): string {
-  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+// FIX 5.1: Top 120 Most Common Fault Codes (top ~2 per brand) for initial SSR HTML
+const topFaultCodes: any[] = [];
+const brandSeenCount = new Map<string, number>();
+for (const item of errorsDb as any[]) {
+  const currentCount = brandSeenCount.get(item.brand) || 0;
+  if (currentCount < 2 && topFaultCodes.length < 120) {
+    topFaultCodes.push(item);
+    brandSeenCount.set(item.brand, currentCount + 1);
+  }
 }
 ---
 
@@ -45,7 +61,7 @@ function itemSlug(str: string): string {
           <span>PROGRAMMATIC REPAIR ENGINE • {totalCodes} FAULT CODES INDEXED</span>
         </div>
         <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-          Appliance & Equipment <span class="text-amber-500">Service Manual</span> Database
+          Appliance &amp; Equipment <span class="text-amber-500">Service Manual</span> Database
         </h1>
         <p class="text-slate-400 text-base sm:text-lg leading-relaxed">
           Direct troubleshooting instructions, root causes, technician fix steps, and exact OEM part replacements extracted from certified technical documentation.
@@ -57,7 +73,7 @@ function itemSlug(str: string): string {
             <input
               type="text"
               id="searchInput"
-              placeholder="Search by code (e.g. E24, SFS, ER03) or brand (Bosch, Pentair, Navien)..."
+              placeholder="Search by code (e.g. E24, SFS, P0300) or brand (Bosch, Pentair, Toyota)..."
               class="w-full bg-slate-800 border-2 border-slate-700 text-white placeholder-slate-400 text-sm sm:text-base rounded-xl py-3.5 pl-11 pr-4 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 font-sans shadow-inner transition"
             />
             <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -97,49 +113,82 @@ function itemSlug(str: string): string {
   </section>
 
   <!-- Main Directory Section -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <!-- Brand Selector Hubs -->
-    <div class="mb-12">
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+    <!-- FIX 5.1: All 77 Manufacturer Brand Hub Cards -->
+    <div>
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-bold tracking-tight text-slate-900">Browse by Manufacturer Hub</h2>
-        <span class="text-xs font-mono text-slate-500">Direct Manual Feeds</span>
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-slate-900">Browse All 77 Manufacturer Hubs</h2>
+          <p class="text-xs text-slate-500">Direct OEM manual feeds and complete model repair indexes</p>
+        </div>
+        <span class="text-xs font-mono bg-slate-100 text-slate-700 px-2.5 py-1 rounded">
+          {brandsList.length} Hubs
+        </span>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {brandsList.map((brand) => (
           <a
             href={`/${brand.slug}/`}
-            class="flex flex-col p-4 rounded-xl border border-slate-200 bg-white hover:border-amber-500 hover:shadow-md transition group"
+            class="flex flex-col justify-between p-3.5 rounded-xl border border-slate-200 bg-white hover:border-amber-500 hover:shadow-md transition group"
           >
-            <span class="text-base font-bold text-slate-900 group-hover:text-amber-600 transition">
+            <span class="text-sm font-bold text-slate-900 group-hover:text-amber-600 transition truncate">
               {brand.name}
             </span>
-            <span class="text-xs font-mono text-slate-500 mt-1">
-              {brand.count} {brand.count === 1 ? 'Error Code' : 'Error Codes'}
+            <span class="text-[11px] font-mono text-slate-500 mt-1">
+              {brand.count} Codes &rarr;
             </span>
           </a>
         ))}
       </div>
     </div>
 
-    <!-- Equipment Category Tags -->
-    <div class="mb-10 flex flex-wrap items-center gap-2">
-      <span class="text-xs font-mono uppercase tracking-wider text-slate-500 mr-2">Equipment Types:</span>
-      {equipmentList.map((eq) => (
-        <span class="px-3 py-1 rounded-full text-xs font-medium bg-slate-200/80 text-slate-800">
-          {eq.name} ({eq.count})
+    <!-- FIX 5.1: Equipment Category Grid Linking to Top Brands -->
+    <div>
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-bold tracking-tight text-slate-900">Browse by Equipment Category</h2>
+          <p class="text-xs text-slate-500">Filter fault code directories by machine type</p>
+        </div>
+        <span class="text-xs font-mono bg-slate-100 text-slate-700 px-2.5 py-1 rounded">
+          {equipmentList.length} Categories
         </span>
-      ))}
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {equipmentList.map((eq) => (
+          <div class="p-4 rounded-xl border border-slate-200 bg-white shadow-2xs space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-900 truncate">{eq.name}</h3>
+              <span class="text-[11px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">
+                {eq.count}
+              </span>
+            </div>
+            <div class="flex flex-wrap gap-1.5 pt-1">
+              {eq.brands.map((b) => {
+                const bSlug = b.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                return (
+                  <a
+                    href={`/${bSlug}/`}
+                    class="text-[11px] px-2 py-0.5 rounded bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-800 transition"
+                  >
+                    {b}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
 
-    <!-- Comprehensive Master Fault Directory Table -->
+    <!-- FIX 5.1: Top 120 Most Common Fault Codes SSR Table -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 class="text-lg font-bold text-slate-900">Master Fault Code Index</h2>
-          <p class="text-xs text-slate-500">Live indexed manuals sorted by manufacturer and model series</p>
+          <h2 class="text-lg font-bold text-slate-900" id="tableHeading">Featured Diagnostic Codes</h2>
+          <p class="text-xs text-slate-500" id="tableSubheading">Top indexed error codes across all 77 manufacturer product lines</p>
         </div>
         <span id="resultsCount" class="text-xs font-mono bg-slate-100 text-slate-700 px-2.5 py-1 rounded">
-          Showing {errorsDb.length} Fault Guides
+          Showing {topFaultCodes.length} Fault Guides
         </span>
       </div>
 
@@ -148,74 +197,160 @@ function itemSlug(str: string): string {
           <thead class="bg-slate-50 text-slate-700 text-xs font-mono uppercase border-b border-slate-200">
             <tr>
               <th class="py-3.5 px-4 font-semibold">Error Code</th>
-              <th class="py-3.5 px-4 font-semibold">Brand & Equipment</th>
+              <th class="py-3.5 px-4 font-semibold">Brand &amp; Equipment</th>
               <th class="py-3.5 px-4 font-semibold">Model Series</th>
               <th class="py-3.5 px-4 font-semibold">Symptom</th>
               <th class="py-3.5 px-4 font-semibold">Primary Part</th>
               <th class="py-3.5 px-4 font-semibold text-right">Action</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-200 text-slate-700 font-sans">
-            {errorsDb.map((item) => (
-              <tr class="hover:bg-amber-50/40 transition searchable-row" data-search={`${item.brand} ${item.error_code} ${item.equipment_type} ${item.model_series} ${item.short_symptom}`.toLowerCase()}>
-                <td class="py-4 px-4 font-mono font-bold text-slate-900">
-                  <span class="bg-slate-100 border border-slate-300 px-2.5 py-1 rounded-md text-amber-700">
-                    {item.error_code}
-                  </span>
-                </td>
-                <td class="py-4 px-4">
-                  <div class="font-bold text-slate-900">{item.brand}</div>
-                  <div class="text-xs text-slate-500">{item.equipment_type}</div>
-                </td>
-                <td class="py-4 px-4 text-xs font-mono text-slate-600 max-w-xs truncate">
-                  {item.model_series}
-                </td>
-                <td class="py-4 px-4 max-w-xs">
-                  <span class="text-slate-800 line-clamp-1">{item.short_symptom}</span>
-                </td>
-                <td class="py-4 px-4 text-xs font-medium text-slate-900">
-                  {item.primary_part_name}
-                </td>
-                <td class="py-4 px-4 text-right">
-                  <a
-                    href={`/${item.brand_slug}/${item.slug}/`}
-                    class="inline-flex items-center gap-1 text-xs font-bold font-mono px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-amber-600 text-white transition"
-                  >
-                    Fix Guide &rarr;
-                  </a>
-                </td>
-              </tr>
-            ))}
+          <tbody id="tableBody" class="divide-y divide-slate-200 text-slate-700 font-sans">
+            {topFaultCodes.map((item) => {
+              const bSlug = item.brand_slug || item.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+              return (
+                <tr class="hover:bg-amber-50/40 transition">
+                  <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
+                    <span class="bg-slate-100 border border-slate-300 px-2 py-0.5 rounded text-amber-700">
+                      {item.error_code}
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-4">
+                    <div class="font-bold text-slate-900">{item.brand}</div>
+                    <div class="text-[11px] text-slate-500">{item.equipment_type}</div>
+                  </td>
+                  <td class="py-3.5 px-4 text-xs font-mono text-slate-600 max-w-xs truncate">
+                    {item.model_series}
+                  </td>
+                  <td class="py-3.5 px-4 max-w-xs">
+                    <span class="text-slate-800 text-xs line-clamp-1">{item.short_symptom}</span>
+                  </td>
+                  <td class="py-3.5 px-4 text-xs font-mono font-medium text-slate-900">
+                    {item.primary_part_name}
+                  </td>
+                  <td class="py-3.5 px-4 text-right">
+                    <a
+                      href={`/${bSlug}/${item.slug}/`}
+                      class="inline-flex items-center gap-1 text-xs font-bold font-mono px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-amber-600 text-white transition"
+                    >
+                      Fix Guide &rarr;
+                    </a>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
     </div>
   </section>
 
-  <!-- Client-side real-time filter script -->
+  <!-- FIX 5.2: Client-side Instant Search with /search-index.json on demand -->
   <script is:inline>
     const searchInput = document.getElementById('searchInput');
-    const tableRows = document.querySelectorAll('.searchable-row');
-    const countBadge = document.getElementById('resultsCount');
+    const tableBody = document.getElementById('tableBody');
+    const resultsCount = document.getElementById('resultsCount');
+    const tableHeading = document.getElementById('tableHeading');
+    const tableSubheading = document.getElementById('tableSubheading');
+
+    let initialHtml = tableBody ? tableBody.innerHTML : '';
+    let searchIndex = null;
+    let isLoadingIndex = false;
+
+    async function loadSearchIndex() {
+      if (searchIndex || isLoadingIndex) return;
+      isLoadingIndex = true;
+      try {
+        const res = await fetch('/search-index.json');
+        if (res.ok) {
+          searchIndex = await res.json();
+        }
+      } catch (err) {
+        console.error('Failed to load search index:', err);
+      } finally {
+        isLoadingIndex = false;
+      }
+    }
 
     if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
+      // Pre-load search index when user hovers or focuses the input
+      searchInput.addEventListener('focus', loadSearchIndex);
+      searchInput.addEventListener('mouseenter', loadSearchIndex);
+
+      searchInput.addEventListener('input', async (e) => {
         const query = e.target.value.toLowerCase().trim();
-        let visibleCount = 0;
 
-        tableRows.forEach((row) => {
-          const haystack = row.getAttribute('data-search') || '';
-          if (!query || haystack.includes(query)) {
-            row.style.display = '';
-            visibleCount++;
-          } else {
-            row.style.display = 'none';
-          }
-        });
-
-        if (countBadge) {
-          countBadge.textContent = `Showing ${visibleCount} Fault Guides`;
+        if (!query) {
+          if (tableBody) tableBody.innerHTML = initialHtml;
+          if (resultsCount) resultsCount.textContent = 'Showing 120 Fault Guides';
+          if (tableHeading) tableHeading.textContent = 'Featured Diagnostic Codes';
+          if (tableSubheading) tableSubheading.textContent = 'Top indexed error codes across all 77 manufacturer product lines';
+          return;
         }
+
+        if (!searchIndex) {
+          await loadSearchIndex();
+        }
+
+        if (!searchIndex) return;
+
+        const terms = query.split(/\s+/).filter(Boolean);
+        const matches = [];
+
+        for (let i = 0; i < searchIndex.length; i++) {
+          const item = searchIndex[i];
+          const haystack = `${item.b} ${item.c} ${item.m} ${item.s} ${item.p} ${item.e} ${item.n}`.toLowerCase();
+          const matchAll = terms.every((t) => haystack.includes(t));
+          if (matchAll) {
+            matches.push(item);
+            if (matches.length >= 100) break; // Keep DOM snappy
+          }
+        }
+
+        if (tableHeading) tableHeading.textContent = `Search Results for "${e.target.value}"`;
+        if (tableSubheading) tableSubheading.textContent = `Found ${matches.length} matching OEM error code guides`;
+        if (resultsCount) resultsCount.textContent = `Showing ${matches.length} Results`;
+
+        if (matches.length === 0) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="6" class="py-12 text-center text-slate-500 font-mono text-sm">
+                No matching error codes found for "${e.target.value}". Try searching by code number (e.g. E24, SFS) or appliance brand.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tableBody.innerHTML = matches.map((m) => `
+          <tr class="hover:bg-amber-50/40 transition">
+            <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
+              <span class="bg-slate-100 border border-slate-300 px-2 py-0.5 rounded text-amber-700">
+                ${m.c}
+              </span>
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="font-bold text-slate-900">${m.b}</div>
+              <div class="text-[11px] text-slate-500">${m.e}</div>
+            </td>
+            <td class="py-3.5 px-4 text-xs font-mono text-slate-600 max-w-xs truncate">
+              ${m.m}
+            </td>
+            <td class="py-3.5 px-4 max-w-xs">
+              <span class="text-slate-800 text-xs line-clamp-1">${m.s}</span>
+            </td>
+            <td class="py-3.5 px-4 text-xs font-mono font-medium text-slate-900">
+              ${m.n || m.p}
+            </td>
+            <td class="py-3.5 px-4 text-right">
+              <a
+                href="${m.u}"
+                class="inline-flex items-center gap-1 text-xs font-bold font-mono px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-amber-600 text-white transition"
+              >
+                Fix Guide &rarr;
+              </a>
+            </td>
+          </tr>
+        `).join('');
       });
     }
   </script>

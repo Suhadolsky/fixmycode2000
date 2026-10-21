@@ -13,6 +13,9 @@ interface Props {
   estimatedCost: string;
   steps: string[];
   primaryPartName: string;
+  oemPartNumber?: string;
+  brandSlug?: string;
+  slug?: string;
   consumableName: string;
   requiredToolName: string;
   faqQuestions: FAQItem[];
@@ -27,10 +30,18 @@ const {
   estimatedCost,
   steps,
   primaryPartName,
+  oemPartNumber,
+  brandSlug,
+  slug,
   consumableName,
   requiredToolName,
   faqQuestions = [],
 } = Astro.props;
+
+// FIX 4.1: Parse numeric range for valid Schema.org MonetaryAmount
+const costMatches = (estimatedCost || '').match(/\d+/g)?.map(Number) || [150, 300];
+const minCost = costMatches[0] || 120;
+const maxCost = costMatches.length > 1 ? costMatches[1] : Math.round(minCost * 1.4);
 
 // Build Schema.org HowTo Step Objects
 const howToSteps = steps.map((stepText, idx) => ({
@@ -50,6 +61,11 @@ const faqEntities = (faqQuestions || []).map((faq) => ({
   },
 }));
 
+const effectiveBrandSlug = brandSlug || brand.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+const effectiveUrl = slug
+  ? `https://gettinytool.com/${effectiveBrandSlug}/${slug}/`
+  : `https://gettinytool.com/${effectiveBrandSlug}/`;
+
 const schemaGraph = {
   "@context": "https://schema.org",
   "@graph": [
@@ -60,12 +76,14 @@ const schemaGraph = {
       estimatedCost: {
         "@type": "MonetaryAmount",
         currency: "USD",
-        value: estimatedCost,
+        minValue: minCost,
+        maxValue: maxCost,
       },
       supply: [
         {
           "@type": "HowToSupply",
           name: primaryPartName,
+          ...(oemPartNumber ? { identifier: oemPartNumber, mpn: oemPartNumber } : {}),
         },
         {
           "@type": "HowToSupply",
@@ -83,6 +101,29 @@ const schemaGraph = {
     {
       "@type": "FAQPage",
       mainEntity: faqEntities,
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: "https://gettinytool.com/",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: brand,
+          item: `https://gettinytool.com/${effectiveBrandSlug}/`,
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: `Error ${errorCode}`,
+          item: effectiveUrl,
+        },
+      ],
     },
   ],
 };

@@ -1,5 +1,6 @@
 ---
 interface Props {
+  brand?: string;
   errorCode: string;
   primaryPartName: string;
   oemPartNumber: string;
@@ -13,6 +14,7 @@ interface Props {
 }
 
 const {
+  brand = '',
   errorCode,
   primaryPartName,
   oemPartNumber,
@@ -22,13 +24,23 @@ const {
   consumableName,
   consumableAffiliateUrl,
   bundleCartUrl,
-  hasAsinBundle = false,
 } = Astro.props;
 
-const effectiveBundleUrl = bundleCartUrl || partAffiliateUrl;
+// Build clean search URLs if not provided
+const cleanPart = primaryPartName.replace(/\(.*?\)/g, '').trim();
+const hasOem = oemPartNumber && !oemPartNumber.toLowerCase().includes('check') && oemPartNumber !== 'N/A';
+const partSearchQuery = hasOem ? `${brand} ${oemPartNumber} ${cleanPart}`.trim() : `${brand} ${cleanPart}`.trim();
+const cleanPartUrl = partAffiliateUrl || `https://www.amazon.com/s?k=${encodeURIComponent(partSearchQuery)}&tag=amazinrevie0a-20`;
+
+const bundleSearchQuery = hasOem
+  ? `${brand} ${oemPartNumber} ${cleanPart} replacement kit`.trim()
+  : `${brand} ${cleanPart} repair kit`.trim();
+const cleanBundleUrl = bundleCartUrl || `https://www.amazon.com/s?k=${encodeURIComponent(bundleSearchQuery)}&tag=amazinrevie0a-20`;
+
+const copyBtnId = `copy-rk-${Math.random().toString(36).substring(2, 9)}`;
 ---
 
-<div class="my-8 rounded-2xl border-2 border-slate-900 bg-white shadow-xl overflow-hidden">
+<div class="my-8 rounded-2xl border-2 border-slate-900 bg-white shadow-xl overflow-hidden font-sans">
   <!-- Box Header -->
   <div class="bg-slate-900 text-white px-5 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3 border-b-2 border-slate-800">
     <div class="flex items-center gap-2.5">
@@ -38,7 +50,7 @@ const effectiveBundleUrl = bundleCartUrl || partAffiliateUrl;
         </svg>
       </span>
       <h3 class="text-base sm:text-lg font-black tracking-tight text-white uppercase font-mono">
-        REQUIRED REPAIR KIT & PARTS FOR ERROR <span class="text-amber-400">{errorCode}</span>
+        REQUIRED REPAIR KIT &amp; PARTS FOR ERROR <span class="text-amber-400">{errorCode}</span>
       </h3>
     </div>
     <span class="text-[11px] font-mono uppercase bg-slate-800 text-slate-300 px-2.5 py-1 rounded border border-slate-700">
@@ -56,9 +68,19 @@ const effectiveBundleUrl = bundleCartUrl || partAffiliateUrl;
             [1. REPLACEMENT PART]
           </span>
           {oemPartNumber && (
-            <span class="inline-block px-2 py-0.5 rounded text-[11px] font-mono bg-slate-100 text-slate-700 border border-slate-300">
-              OEM: <strong class="text-slate-900">{oemPartNumber}</strong>
-            </span>
+            <div class="inline-flex items-center gap-1.5 bg-slate-100 border border-slate-300 rounded px-2 py-0.5 text-[11px] font-mono">
+              <span class="text-slate-600">OEM:</span>
+              <strong class="text-slate-900">{oemPartNumber}</strong>
+              <button
+                type="button"
+                id={copyBtnId}
+                data-part={oemPartNumber}
+                class="copy-rk-btn ml-1 px-1.5 py-0.2 rounded text-[10px] bg-white border border-slate-200 hover:bg-slate-200 text-slate-700 font-semibold cursor-pointer transition"
+                title="Copy OEM Part Number"
+              >
+                <span class="copy-rk-label">Copy OEM #</span>
+              </button>
+            </div>
           )}
         </div>
         <h4 class="text-lg sm:text-xl font-bold text-slate-900 leading-snug">
@@ -71,15 +93,12 @@ const effectiveBundleUrl = bundleCartUrl || partAffiliateUrl;
 
       <div class="md:text-right shrink-0">
         <a
-          href={partAffiliateUrl}
+          href={cleanPartUrl}
           target="_blank"
-          rel="nofollow noopener sponsored"
+          rel="sponsored nofollow noopener"
           class="inline-flex items-center justify-center w-full md:w-auto px-5 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-sm tracking-wide shadow-md hover:shadow-lg transition-all duration-150 transform hover:-translate-y-0.5 group"
         >
-          <span>Check Compatibility & Stock on Amazon</span>
-          <svg class="w-4 h-4 ml-1.5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
+          <span>Check Price &amp; Stock for OEM #{oemPartNumber} on Amazon &rarr;</span>
         </a>
       </div>
     </div>
@@ -104,7 +123,7 @@ const effectiveBundleUrl = bundleCartUrl || partAffiliateUrl;
         <a
           href={toolAffiliateUrl}
           target="_blank"
-          rel="nofollow noopener sponsored"
+          rel="sponsored nofollow noopener"
           class="inline-flex items-center justify-center w-full md:w-auto px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold text-xs tracking-wide shadow-sm hover:shadow transition"
         >
           <span>View Tool on Amazon</span>
@@ -135,7 +154,7 @@ const effectiveBundleUrl = bundleCartUrl || partAffiliateUrl;
         <a
           href={consumableAffiliateUrl}
           target="_blank"
-          rel="nofollow noopener sponsored"
+          rel="sponsored nofollow noopener"
           class="inline-flex items-center justify-center w-full md:w-auto px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold text-xs tracking-wide shadow-sm hover:shadow transition"
         >
           <span>View on Amazon</span>
@@ -147,34 +166,32 @@ const effectiveBundleUrl = bundleCartUrl || partAffiliateUrl;
     </div>
   </div>
 
-  <!-- Multi-Cart Bundle Injection Hero Bar (90-Day Cookie Booster) -->
+  <!-- Bottom Bar: Complete OEM Part + Service Kit Search on Amazon -->
   <div class="p-5 sm:p-6 bg-slate-900 text-white border-t-2 border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
     <div class="space-y-1 max-w-xl">
       <div class="flex items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider bg-emerald-500 text-slate-950 uppercase">
+        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider bg-amber-500 text-slate-950 uppercase">
           <span class="w-1.5 h-1.5 rounded-full bg-slate-950 animate-pulse"></span>
-          {hasAsinBundle ? "90-Day Cart Injection" : "Complete Repair Bundle"}
+          Complete Service Kit
         </span>
         <span class="text-[11px] font-mono text-slate-400">All-in-One Fix</span>
       </div>
       <h4 class="text-base sm:text-lg font-bold text-white">
-        Add Complete 3-Piece Repair Kit to Amazon Cart
+        Complete OEM Part + Service Kit Search on Amazon
       </h4>
       <p class="text-xs text-slate-400">
-        {hasAsinBundle
-          ? "Injects replacement part, required tool, and consumable into your Amazon cart at once with 90-day price hold."
-          : "Find matching OEM part, specific tools, and sealants bundled on Amazon in one search."}
+        Find matching OEM part #{oemPartNumber}, certified service kits, and compatible sealants on Amazon in one search.
       </p>
     </div>
 
     <div class="sm:text-right shrink-0">
       <a
-        href={effectiveBundleUrl}
+        href={cleanBundleUrl}
         target="_blank"
-        rel="nofollow noopener sponsored"
+        rel="sponsored nofollow noopener"
         class="inline-flex items-center justify-center w-full sm:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm tracking-wide shadow-lg hover:shadow-amber-500/20 transition-all duration-150 transform hover:-translate-y-0.5"
       >
-        <span>Add Entire Kit to Cart &rarr;</span>
+        <span>Search Complete Repair Kit on Amazon &rarr;</span>
       </a>
     </div>
   </div>
@@ -185,3 +202,25 @@ const effectiveBundleUrl = bundleCartUrl || partAffiliateUrl;
     <span class="font-mono">Parts match OEM tolerances</span>
   </div>
 </div>
+
+<!-- Copy button script for RepairKitBox -->
+<script is:inline>
+  document.querySelectorAll('.copy-rk-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const part = btn.getAttribute('data-part');
+      if (!part) return;
+      navigator.clipboard.writeText(part).then(() => {
+        const label = btn.querySelector('.copy-rk-label');
+        if (label) {
+          const original = label.textContent;
+          label.textContent = 'Copied!';
+          btn.classList.add('text-emerald-700', 'bg-emerald-50');
+          setTimeout(() => {
+            label.textContent = original;
+            btn.classList.remove('text-emerald-700', 'bg-emerald-50');
+          }, 2000);
+        }
+      });
+    });
+  });
+</script>
