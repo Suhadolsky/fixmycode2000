@@ -67,19 +67,43 @@ for (const item of errorsDb as any[]) {
           Direct troubleshooting instructions, root causes, technician fix steps, and exact OEM part replacements extracted from certified technical documentation.
         </p>
 
-        <!-- Live Instant Search Bar -->
-        <div class="pt-4 max-w-2xl">
+        <!-- Live Instant Search Bar with Immediate Dropdown Feedback -->
+        <div class="pt-4 max-w-2xl relative">
           <div class="relative">
             <input
               type="text"
               id="searchInput"
               placeholder="Search by code (e.g. E24, SFS, P0300) or brand (Bosch, Pentair, Toyota)..."
-              class="w-full bg-slate-800 border-2 border-slate-700 text-white placeholder-slate-400 text-sm sm:text-base rounded-xl py-3.5 pl-11 pr-4 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 font-sans shadow-inner transition"
+              class="w-full bg-slate-800 border-2 border-slate-700 text-white placeholder-slate-400 text-sm sm:text-base rounded-xl py-3.5 pl-11 pr-24 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 font-sans shadow-inner transition"
+              autocomplete="off"
+              spellcheck="false"
             />
             <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
+            <div class="absolute right-3 top-3 hidden sm:flex items-center gap-1.5 text-[11px] font-mono text-slate-400 bg-slate-900/90 px-2 py-1 rounded border border-slate-700">
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Instant Fix</span>
+            </div>
           </div>
+
+          <!-- Hero Instant Floating Dropdown -->
+          <div
+            id="heroSearchDropdown"
+            class="hidden absolute left-0 right-0 top-full mt-2 z-50 bg-slate-900/95 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden divide-y divide-slate-800 backdrop-blur-md transition-all"
+          >
+            <div id="heroDropdownStatus" class="px-4 py-2 bg-slate-950/80 text-[11px] font-mono text-slate-400 flex items-center justify-between border-b border-slate-800">
+              <span id="heroMatchCount">Matching OEM Guides</span>
+              <span class="text-amber-500 font-semibold hidden sm:inline">Press Enter ↵ to open</span>
+            </div>
+            <div id="heroDropdownResults" class="max-h-80 overflow-y-auto p-1.5 space-y-1"></div>
+            <div id="heroDropdownFooter" class="p-2.5 bg-slate-950 text-center text-xs font-mono border-t border-slate-800">
+              <a href="#codesTable" id="viewAllResultsBtn" class="text-amber-400 hover:text-amber-300 font-semibold inline-flex items-center gap-1">
+                View all results in table below &darr;
+              </a>
+            </div>
+          </div>
+
           <p class="text-xs text-slate-400 mt-2 font-mono">
             Pro Tip: Type your appliance error code to jump directly to the verified fix guide.
           </p>
@@ -244,114 +268,243 @@ for (const item of errorsDb as any[]) {
     </div>
   </section>
 
-  <!-- FIX 5.2: Client-side Instant Search with /search-index.json on demand -->
+  <!-- Instant Search Engine with Cached Promise & Floating Dropdown Feedback -->
   <script is:inline>
-    const searchInput = document.getElementById('searchInput');
-    const tableBody = document.getElementById('tableBody');
-    const resultsCount = document.getElementById('resultsCount');
-    const tableHeading = document.getElementById('tableHeading');
-    const tableSubheading = document.getElementById('tableSubheading');
+    (function () {
+      let searchIndexPromise = null;
+      let activeIndex = -1;
 
-    let initialHtml = tableBody ? tableBody.innerHTML : '';
-    let searchIndex = null;
-    let isLoadingIndex = false;
-
-    async function loadSearchIndex() {
-      if (searchIndex || isLoadingIndex) return;
-      isLoadingIndex = true;
-      try {
-        const res = await fetch('/search-index.json');
-        if (res.ok) {
-          searchIndex = await res.json();
+      function getSearchIndex() {
+        if (!searchIndexPromise) {
+          searchIndexPromise = fetch('/search-index.json')
+            .then((res) => {
+              if (!res.ok) throw new Error('HTTP ' + res.status);
+              return res.json();
+            })
+            .catch((err) => {
+              searchIndexPromise = null;
+              console.error('Failed to load search index:', err);
+              return [];
+            });
         }
-      } catch (err) {
-        console.error('Failed to load search index:', err);
-      } finally {
-        isLoadingIndex = false;
+        return searchIndexPromise;
       }
-    }
 
-    if (searchInput) {
-      // Pre-load search index when user hovers or focuses the input
-      searchInput.addEventListener('focus', loadSearchIndex);
-      searchInput.addEventListener('mouseenter', loadSearchIndex);
+      const searchInput = document.getElementById('searchInput');
+      const dropdown = document.getElementById('heroSearchDropdown');
+      const dropdownResults = document.getElementById('heroDropdownResults');
+      const heroMatchCount = document.getElementById('heroMatchCount');
+      const tableBody = document.getElementById('tableBody');
+      const resultsCount = document.getElementById('resultsCount');
+      const tableHeading = document.getElementById('tableHeading');
+      const tableSubheading = document.getElementById('tableSubheading');
 
-      searchInput.addEventListener('input', async (e) => {
-        const query = e.target.value.toLowerCase().trim();
+      let initialHtml = tableBody ? tableBody.innerHTML : '';
 
-        if (!query) {
-          if (tableBody) tableBody.innerHTML = initialHtml;
-          if (resultsCount) resultsCount.textContent = 'Showing 120 Fault Guides';
-          if (tableHeading) tableHeading.textContent = 'Featured Diagnostic Codes';
-          if (tableSubheading) tableSubheading.textContent = 'Top indexed error codes across all 77 manufacturer product lines';
-          return;
+      function closeDropdown() {
+        if (dropdown) dropdown.classList.add('hidden');
+        activeIndex = -1;
+      }
+
+      function openDropdown() {
+        if (dropdown) dropdown.classList.remove('hidden');
+      }
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#searchInput') && !e.target.closest('#heroSearchDropdown')) {
+          closeDropdown();
         }
-
-        if (!searchIndex) {
-          await loadSearchIndex();
-        }
-
-        if (!searchIndex) return;
-
-        const terms = query.split(/\s+/).filter(Boolean);
-        const matches = [];
-
-        for (let i = 0; i < searchIndex.length; i++) {
-          const item = searchIndex[i];
-          const haystack = `${item.b} ${item.c} ${item.m} ${item.s} ${item.p} ${item.e} ${item.n}`.toLowerCase();
-          const matchAll = terms.every((t) => haystack.includes(t));
-          if (matchAll) {
-            matches.push(item);
-            if (matches.length >= 100) break; // Keep DOM snappy
-          }
-        }
-
-        if (tableHeading) tableHeading.textContent = `Search Results for "${e.target.value}"`;
-        if (tableSubheading) tableSubheading.textContent = `Found ${matches.length} matching OEM error code guides`;
-        if (resultsCount) resultsCount.textContent = `Showing ${matches.length} Results`;
-
-        if (matches.length === 0) {
-          tableBody.innerHTML = `
-            <tr>
-              <td colspan="6" class="py-12 text-center text-slate-500 font-mono text-sm">
-                No matching error codes found for "${e.target.value}". Try searching by code number (e.g. E24, SFS) or appliance brand.
-              </td>
-            </tr>
-          `;
-          return;
-        }
-
-        tableBody.innerHTML = matches.map((m) => `
-          <tr class="hover:bg-amber-50/40 transition">
-            <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
-              <span class="bg-slate-100 border border-slate-300 px-2 py-0.5 rounded text-amber-700">
-                ${m.c}
-              </span>
-            </td>
-            <td class="py-3.5 px-4">
-              <div class="font-bold text-slate-900">${m.b}</div>
-              <div class="text-[11px] text-slate-500">${m.e}</div>
-            </td>
-            <td class="py-3.5 px-4 text-xs font-mono text-slate-600 max-w-xs truncate">
-              ${m.m}
-            </td>
-            <td class="py-3.5 px-4 max-w-xs">
-              <span class="text-slate-800 text-xs line-clamp-1">${m.s}</span>
-            </td>
-            <td class="py-3.5 px-4 text-xs font-mono font-medium text-slate-900">
-              ${m.n || m.p}
-            </td>
-            <td class="py-3.5 px-4 text-right">
-              <a
-                href="${m.u}"
-                class="inline-flex items-center gap-1 text-xs font-bold font-mono px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-amber-600 text-white transition"
-              >
-                Fix Guide &rarr;
-              </a>
-            </td>
-          </tr>
-        `).join('');
       });
-    }
+
+      if (searchInput) {
+        // Pre-fetch on hover or focus
+        searchInput.addEventListener('focus', () => {
+          getSearchIndex();
+          if (searchInput.value.trim() && dropdownResults && dropdownResults.children.length > 0) {
+            openDropdown();
+          }
+        });
+        searchInput.addEventListener('mouseenter', getSearchIndex);
+
+        // Keyboard navigation (Arrow keys + Enter + Esc)
+        searchInput.addEventListener('keydown', (e) => {
+          const items = dropdownResults ? dropdownResults.querySelectorAll('.hero-search-item') : [];
+          if (!items.length) return;
+
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIndex = (activeIndex + 1) % items.length;
+            updateActiveItem(items);
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeIndex = (activeIndex - 1 + items.length) % items.length;
+            updateActiveItem(items);
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (activeIndex >= 0 && activeIndex < items.length) {
+              items[activeIndex].click();
+            } else if (items.length > 0) {
+              items[0].click();
+            }
+          } else if (e.key === 'Escape') {
+            closeDropdown();
+          }
+        });
+
+        function updateActiveItem(items) {
+          items.forEach((item, idx) => {
+            if (idx === activeIndex) {
+              item.classList.add('bg-slate-800', 'border-amber-500/50');
+              item.scrollIntoView({ block: 'nearest' });
+            } else {
+              item.classList.remove('bg-slate-800', 'border-amber-500/50');
+            }
+          });
+        }
+
+        searchInput.addEventListener('input', async (e) => {
+          const query = e.target.value.toLowerCase().trim();
+          activeIndex = -1;
+
+          if (!query) {
+            closeDropdown();
+            if (tableBody) tableBody.innerHTML = initialHtml;
+            if (resultsCount) resultsCount.textContent = 'Showing 120 Fault Guides';
+            if (tableHeading) tableHeading.textContent = 'Featured Diagnostic Codes';
+            if (tableSubheading) tableSubheading.textContent = 'Top indexed error codes across all 77 manufacturer product lines';
+            return;
+          }
+
+          openDropdown();
+          if (dropdownResults) {
+            dropdownResults.innerHTML = `
+              <div class="py-4 text-center text-xs font-mono text-slate-400">
+                Searching 3,581 error codes...
+              </div>
+            `;
+          }
+
+          const index = await getSearchIndex();
+          if (!index || !index.length) {
+            if (dropdownResults) {
+              dropdownResults.innerHTML = `
+                <div class="py-4 text-center text-xs font-mono text-slate-400">
+                  Loading manual index...
+                </div>
+              `;
+            }
+            return;
+          }
+
+          // Double check if query changed while fetching
+          const currentQuery = searchInput.value.toLowerCase().trim();
+          if (currentQuery !== query) return;
+
+          const terms = query.split(/\s+/).filter(Boolean);
+          const matches = [];
+
+          for (let i = 0; i < index.length; i++) {
+            const item = index[i];
+            const haystack = `${item.c} ${item.b} ${item.m} ${item.s} ${item.p} ${item.e} ${item.n}`.toLowerCase();
+            if (terms.every((t) => haystack.includes(t))) {
+              matches.push(item);
+              if (matches.length >= 100) break;
+            }
+          }
+
+          // Render instant dropdown top 6 matches
+          if (matches.length === 0) {
+            if (dropdownResults) {
+              dropdownResults.innerHTML = `
+                <div class="py-6 px-4 text-center">
+                  <p class="text-xs text-slate-300 font-medium">No direct matches for "${e.target.value}"</p>
+                  <p class="text-[11px] text-slate-500 mt-1">Try entering just the code number (e.g. E24, SFS, P0300)</p>
+                </div>
+              `;
+            }
+            if (heroMatchCount) heroMatchCount.textContent = '0 Matches';
+          } else {
+            if (heroMatchCount) {
+              heroMatchCount.textContent = `${matches.length} Matching Guides`;
+            }
+            const topDropdown = matches.slice(0, 6);
+            if (dropdownResults) {
+              dropdownResults.innerHTML = topDropdown.map((m, idx) => `
+                <a
+                  href="${m.u}"
+                  class="hero-search-item flex items-center justify-between p-2.5 rounded-xl border border-transparent hover:bg-slate-800 transition text-left block"
+                  data-idx="${idx}"
+                >
+                  <div class="min-w-0 pr-3">
+                    <div class="flex items-center gap-2 mb-0.5">
+                      <span class="font-mono font-bold text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        ${m.c}
+                      </span>
+                      <span class="text-xs font-bold text-white truncate">${m.b}</span>
+                      <span class="text-[10px] text-slate-400 font-mono">${m.e}</span>
+                    </div>
+                    <div class="text-xs text-slate-300 truncate">${m.s}</div>
+                  </div>
+                  <span class="text-[11px] font-mono font-semibold px-2 py-1 rounded bg-slate-800 text-amber-400 border border-slate-700 flex-shrink-0">
+                    Fix &rarr;
+                  </span>
+                </a>
+              `).join('');
+            }
+          }
+
+          // Also update table below
+          if (tableHeading) tableHeading.textContent = `Search Results for "${e.target.value}"`;
+          if (tableSubheading) tableSubheading.textContent = `Found ${matches.length} matching OEM error code guides`;
+          if (resultsCount) resultsCount.textContent = `Showing ${matches.length} Results`;
+
+          if (matches.length === 0) {
+            if (tableBody) {
+              tableBody.innerHTML = `
+                <tr>
+                  <td colspan="6" class="py-12 text-center text-slate-500 font-mono text-sm">
+                    No matching error codes found for "${e.target.value}". Try searching by code number (e.g. E24, SFS) or appliance brand.
+                  </td>
+                </tr>
+              `;
+            }
+          } else {
+            if (tableBody) {
+              tableBody.innerHTML = matches.map((m) => `
+                <tr class="hover:bg-amber-50/40 transition">
+                  <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
+                    <span class="bg-slate-100 border border-slate-300 px-2 py-0.5 rounded text-amber-700">
+                      ${m.c}
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-4">
+                    <div class="font-bold text-slate-900">${m.b}</div>
+                    <div class="text-[11px] text-slate-500">${m.e}</div>
+                  </td>
+                  <td class="py-3.5 px-4 text-xs font-mono text-slate-600 max-w-xs truncate">
+                    ${m.m}
+                  </td>
+                  <td class="py-3.5 px-4 max-w-xs">
+                    <span class="text-slate-800 text-xs line-clamp-1">${m.s}</span>
+                  </td>
+                  <td class="py-3.5 px-4 text-xs font-mono font-medium text-slate-900">
+                    ${m.n || m.p}
+                  </td>
+                  <td class="py-3.5 px-4 text-right">
+                    <a
+                      href="${m.u}"
+                      class="inline-flex items-center gap-1 text-xs font-bold font-mono px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-amber-600 text-white transition"
+                    >
+                      Fix Guide &rarr;
+                    </a>
+                  </td>
+                </tr>
+              `).join('');
+            }
+          }
+        });
+      }
+    })();
   </script>
 </MainLayout>

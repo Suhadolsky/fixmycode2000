@@ -1,0 +1,309 @@
+---
+// GlobalSearchModal.astro - Fast, responsive client-side modal search across 3,500+ fault codes
+---
+
+<div
+  id="searchModal"
+  class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm p-4 sm:p-6 md:p-20 overflow-y-auto"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modalSearchTitle"
+>
+  <div class="max-w-2xl mx-auto bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col transition-all">
+    <!-- Header / Input -->
+    <div class="relative flex items-center border-b border-slate-800 px-4 py-3 bg-slate-900/90">
+      <svg class="w-5 h-5 text-amber-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <input
+        type="text"
+        id="modalSearchInput"
+        class="w-full bg-transparent text-white placeholder-slate-400 text-base focus:outline-none font-sans"
+        placeholder="Search 3,500+ codes, brands, or models (e.g. E24, P0300, Pentair)..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <div class="flex items-center gap-1.5 ml-2">
+        <span class="hidden sm:inline-block text-[10px] font-mono uppercase bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">ESC to close</span>
+        <button
+          type="button"
+          id="closeSearchModalBtn"
+          class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+          aria-label="Close search"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Status / Info Bar -->
+    <div id="modalSearchStatus" class="px-4 py-2 bg-slate-950/60 border-b border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
+      <span id="modalResultCount">Quick Search Database</span>
+      <span class="text-amber-500 font-semibold">3,581 Verified Manuals</span>
+    </div>
+
+    <!-- Results Container -->
+    <div
+      id="modalSearchResults"
+      class="max-h-[60vh] overflow-y-auto divide-y divide-slate-800/60 p-2 space-y-1"
+    >
+      <!-- Initial State -->
+      <div class="py-10 px-4 text-center">
+        <div class="w-10 h-10 rounded-full bg-slate-800 text-amber-500 flex items-center justify-center mx-auto mb-3">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <p class="text-sm font-medium text-slate-300">Instant Technical Fault Lookup</p>
+        <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+          Type an error code (e.g. <span class="text-amber-400 font-mono">E24</span>, <span class="text-amber-400 font-mono">SFS</span>, <span class="text-amber-400 font-mono">P0300</span>) or equipment brand to jump directly to technician instructions.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer Shortcuts -->
+    <div class="px-4 py-2.5 bg-slate-950 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between font-mono">
+      <div class="flex items-center gap-3">
+        <span><kbd class="bg-slate-800 text-slate-300 px-1 py-0.5 rounded border border-slate-700">↑↓</kbd> Navigate</span>
+        <span><kbd class="bg-slate-800 text-slate-300 px-1 py-0.5 rounded border border-slate-700">↵</kbd> Open Guide</span>
+      </div>
+      <span>FixMyCode Technical Index</span>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    let searchIndexPromise = null;
+    let selectedIndex = -1;
+
+    function getSearchIndex() {
+      if (!searchIndexPromise) {
+        searchIndexPromise = fetch('/search-index.json')
+          .then((res) => {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+          })
+          .catch((err) => {
+            searchIndexPromise = null;
+            console.error('Error loading search index:', err);
+            return [];
+          });
+      }
+      return searchIndexPromise;
+    }
+
+    // Modal elements
+    const modal = document.getElementById('searchModal');
+    const input = document.getElementById('modalSearchInput');
+    const resultsContainer = document.getElementById('modalSearchResults');
+    const resultCountEl = document.getElementById('modalResultCount');
+    const closeBtn = document.getElementById('closeSearchModalBtn');
+
+    function openModal() {
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      // Preload index immediately on open
+      getSearchIndex();
+      setTimeout(() => {
+        if (input) {
+          input.focus();
+          if (input.value.trim()) {
+            performSearch(input.value);
+          }
+        }
+      }, 50);
+    }
+
+    function closeModal() {
+      if (!modal) return;
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+      selectedIndex = -1;
+    }
+
+    // Trigger buttons anywhere in the page with [data-open-search]
+    document.addEventListener('click', (e) => {
+      const trigger = e.target.closest('[data-open-search]');
+      if (trigger) {
+        e.preventDefault();
+        openModal();
+      }
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    // Click on backdrop to close
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
+
+    // Global keyboard shortcut: Ctrl+K, Cmd+K, or / (when not typing in an input)
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (modal && !modal.classList.contains('hidden')) {
+          closeModal();
+        } else {
+          openModal();
+        }
+      } else if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+        e.preventDefault();
+        closeModal();
+      } else if (
+        e.key === '/' &&
+        modal &&
+        modal.classList.contains('hidden') &&
+        document.activeElement.tagName !== 'INPUT' &&
+        document.activeElement.tagName !== 'TEXTAREA'
+      ) {
+        e.preventDefault();
+        openModal();
+      }
+    });
+
+    // Arrow key navigation inside modal
+    if (input) {
+      input.addEventListener('keydown', (e) => {
+        const items = resultsContainer.querySelectorAll('.search-result-item');
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          selectedIndex = (selectedIndex + 1) % items.length;
+          updateActiveItem(items);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+          updateActiveItem(items);
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (selectedIndex >= 0 && selectedIndex < items.length) {
+            items[selectedIndex].click();
+          } else if (items.length > 0) {
+            items[0].click();
+          }
+        }
+      });
+
+      input.addEventListener('input', (e) => {
+        performSearch(e.target.value);
+      });
+    }
+
+    function updateActiveItem(items) {
+      items.forEach((item, idx) => {
+        if (idx === selectedIndex) {
+          item.classList.add('bg-slate-800/90', 'border-amber-500/50');
+          item.scrollIntoView({ block: 'nearest' });
+        } else {
+          item.classList.remove('bg-slate-800/90', 'border-amber-500/50');
+        }
+      });
+    }
+
+    async function performSearch(rawQuery) {
+      const query = rawQuery.toLowerCase().trim();
+      selectedIndex = -1;
+
+      if (!query) {
+        if (resultCountEl) resultCountEl.textContent = 'Quick Search Database';
+        resultsContainer.innerHTML = `
+          <div class="py-10 px-4 text-center">
+            <div class="w-10 h-10 rounded-full bg-slate-800 text-amber-500 flex items-center justify-center mx-auto mb-3">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <p class="text-sm font-medium text-slate-300">Instant Technical Fault Lookup</p>
+            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+              Type an error code (e.g. <span class="text-amber-400 font-mono">E24</span>, <span class="text-amber-400 font-mono">SFS</span>, <span class="text-amber-400 font-mono">P0300</span>) or equipment brand to jump directly to technician instructions.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      if (resultCountEl) resultCountEl.textContent = 'Searching index...';
+
+      const index = await getSearchIndex();
+      if (!index || !index.length) {
+        if (resultCountEl) resultCountEl.textContent = 'Search Index Loading...';
+        return;
+      }
+
+      const terms = query.split(/\s+/).filter(Boolean);
+      const matches = [];
+
+      for (let i = 0; i < index.length; i++) {
+        const item = index[i];
+        const haystack = `${item.c} ${item.b} ${item.m} ${item.s} ${item.p} ${item.e} ${item.n}`.toLowerCase();
+        if (terms.every((t) => haystack.includes(t))) {
+          matches.push(item);
+          if (matches.length >= 30) break;
+        }
+      }
+
+      if (resultCountEl) {
+        resultCountEl.textContent = `${matches.length} matches for "${rawQuery}"`;
+      }
+
+      if (matches.length === 0) {
+        resultsContainer.innerHTML = `
+          <div class="py-12 px-4 text-center">
+            <p class="text-sm font-medium text-slate-300">No fault codes matching "${rawQuery}"</p>
+            <p class="text-xs text-slate-500 mt-1">
+              Try searching by partial code (e.g. <span class="text-amber-400 font-mono">E2</span> or <span class="text-amber-400 font-mono">P0</span>) or equipment brand (e.g. <span class="text-amber-400">Navien</span>, <span class="text-amber-400">Pentair</span>).
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      resultsContainer.innerHTML = matches
+        .map(
+          (m, idx) => `
+          <a
+            href="${m.u}"
+            class="search-result-item flex items-center justify-between p-3 rounded-xl border border-transparent hover:bg-slate-800/70 hover:border-slate-700 transition group text-left block"
+            data-index="${idx}"
+          >
+            <div class="min-w-0 pr-3">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="font-mono font-bold text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  ${m.c}
+                </span>
+                <span class="text-xs font-bold text-white group-hover:text-amber-400 transition truncate">
+                  ${m.b}
+                </span>
+                <span class="text-[10px] text-slate-400 font-mono uppercase bg-slate-800 px-1.5 py-0.2 rounded">
+                  ${m.e}
+                </span>
+              </div>
+              <div class="text-xs text-slate-300 font-medium truncate">
+                ${m.s}
+              </div>
+              <div class="text-[11px] text-slate-400 font-mono mt-0.5 truncate">
+                Model: ${m.m} • Part: <span class="text-slate-300">${m.n || m.p}</span>
+              </div>
+            </div>
+            <div class="flex-shrink-0">
+              <span class="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-slate-800 text-slate-300 group-hover:bg-amber-600 group-hover:text-white transition flex items-center gap-1">
+                View &rarr;
+              </span>
+            </div>
+          </a>
+        `
+        )
+        .join('');
+    }
+
+    // Export function to window so other scripts (like hero search) can trigger it
+    window.openFixMyCodeSearch = openModal;
+  })();
+</script>
