@@ -203,3 +203,6 @@ NICHE_2_DATA = [
         ("Cascade Link", "EZ-Link Cable Twin System Disconnect", "Two-unit manifold EZ-link communication cable unplugged.", "SP20540", "EZ-Link Cable Assembly 6ft", "Easy (15 mins)", "$130 - $190", "Verify master/slave unit DIP switch settings")
     ])
 ]
+
+from catalog_niche_2_tankless_wave2 import NICHE_2_WAVE2_DATA
+NICHE_2_DATA = NICHE_2_DATA + NICHE_2_WAVE2_DATA

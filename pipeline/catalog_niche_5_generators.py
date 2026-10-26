@@ -76,3 +76,6 @@ NICHE_5_DATA = [
         ("Flue Gasket", "Exhaust Flue Quick-Disconnect Collar Gasket", "Silicon exhaust pipe flange gasket leaking ash into room.", "3-21-08639", "3-Inch Pellet Vent Pipe High Temp Silicone Gasket", "Easy (15 mins)", "$120 - $160", "Inspect 3-inch exhaust pipe joint seals")
     ])
 ]
+
+from catalog_niche_5_generators_grills_wave2 import NICHE_5_WAVE2_DATA
+NICHE_5_DATA = NICHE_5_DATA + NICHE_5_WAVE2_DATA

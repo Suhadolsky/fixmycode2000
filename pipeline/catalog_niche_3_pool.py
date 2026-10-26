@@ -110,3 +110,6 @@ NICHE_3_DATA = [
         ("Topside Stuck", "Keypad Button Sticking Down Continually", "Temp Up or Jets button spring collapsed triggering beeper.", "54220", "Balboa TP600 Digital Spa Topside Keypad", "Easy (15 mins)", "$190 - $290", "Inspect rubber buttons for spring rebound")
     ])
 ]
+
+from catalog_niche_3_pool_wave2 import NICHE_3_WAVE2_DATA
+NICHE_3_DATA = NICHE_3_DATA + NICHE_3_WAVE2_DATA

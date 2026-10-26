@@ -137,3 +137,6 @@ NICHE_6_DATA = [
         ("Contactor 2-Pole", "Compressor Definite Purpose Contactor Burn", "Contactor silver contacts pitted from high current starts.", "CTR02573", "Definite Purpose Contactor 2-Pole 30A 24V", "Medium (25-35 mins)", "$170 - $250", "Contactor coil: 16–22 Ω; contacts rated 30A")
     ])
 ]
+
+from catalog_niche_6_hvac_wave2 import NICHE_6_WAVE2_DATA
+NICHE_6_DATA = NICHE_6_DATA + NICHE_6_WAVE2_DATA

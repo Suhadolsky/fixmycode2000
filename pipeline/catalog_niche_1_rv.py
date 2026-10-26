@@ -264,3 +264,6 @@ NICHE_1_DATA = [
         ("Zero Point", "Chassis Zero Point Calibration Lost", "Controller memory reset to uncalibrated factory state after battery removal.", "304136", "Auto-Level Dual-Axis Controller Brain Box", "Easy (15 mins)", "$150 - $220", "Set zero point: level trailer manually with 4ft level; press Front 10x")
     ])
 ]
+
+from catalog_niche_1_rv_wave2 import NICHE_1_WAVE2_DATA
+NICHE_1_DATA = NICHE_1_DATA + NICHE_1_WAVE2_DATA

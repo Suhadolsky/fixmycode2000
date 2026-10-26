@@ -107,3 +107,6 @@ NICHE_4_DATA = [
         ("Rotary Dial", "Rotary Selection Dial Switch Encoder Loose", "Front rotary dial slipping, skipping past menu selections.", "72622", "Rotary Dial Selection Switch Encoder", "Easy (20 mins)", "$150 - $220", "Clean rotary encoder contacts with electrical cleaner")
     ])
 ]
+
+from catalog_niche_4_ice_espresso_wave2 import NICHE_4_WAVE2_DATA
+NICHE_4_DATA = NICHE_4_DATA + NICHE_4_WAVE2_DATA
