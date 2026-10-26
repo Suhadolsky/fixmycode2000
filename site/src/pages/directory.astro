@@ -1,0 +1,282 @@
+---
+// directory.astro - Master HTML Crawl Hub for 3,581+ OEM Fault Guides across 111 Brands & 99 Categories
+import MainLayout from '../layouts/MainLayout.astro';
+import errorsDb from '../data/errors_db.json';
+
+const toEquipSlug = (str: string) =>
+  str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'equipment';
+
+// Aggregate by equipment_type and brand
+interface BrandSummary {
+  name: string;
+  slug: string;
+  count: number;
+}
+
+interface EquipmentCategory {
+  name: string;
+  slug: string;
+  count: number;
+  brands: BrandSummary[];
+  featuredCodes: any[];
+}
+
+const equipMap = new Map<string, { items: any[]; brandCounts: Map<string, { name: string; slug: string; count: number }> }>();
+const allUniqueBrands = new Set<string>();
+
+errorsDb.forEach((item: any) => {
+  const eq = item.equipment_type || 'General Equipment';
+  const brand = item.brand || 'Generic';
+  const brandSlug = item.brand_slug || brand.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  allUniqueBrands.add(brand);
+
+  if (!equipMap.has(eq)) {
+    equipMap.set(eq, { items: [], brandCounts: new Map() });
+  }
+
+  const group = equipMap.get(eq)!;
+  group.items.push(item);
+
+  if (!group.brandCounts.has(brand)) {
+    group.brandCounts.set(brand, { name: brand, slug: brandSlug, count: 0 });
+  }
+  group.brandCounts.get(brand)!.count += 1;
+});
+
+const categories: EquipmentCategory[] = Array.from(equipMap.entries())
+  .map(([name, data]) => {
+    const brands = Array.from(data.brandCounts.values()).sort((a, b) => b.count - a.count);
+    // Pick up to 6 diverse featured codes (preferring distinct brands)
+    const featuredCodes: any[] = [];
+    const seenBrands = new Set<string>();
+
+    for (const it of data.items) {
+      if (!seenBrands.has(it.brand)) {
+        featuredCodes.push(it);
+        seenBrands.add(it.brand);
+        if (featuredCodes.length >= 6) break;
+      }
+    }
+    // If still under 6, fill with remaining items
+    if (featuredCodes.length < 6) {
+      for (const it of data.items) {
+        if (!featuredCodes.some((f) => f.slug === it.slug)) {
+          featuredCodes.push(it);
+          if (featuredCodes.length >= 6) break;
+        }
+      }
+    }
+
+    return {
+      name,
+      slug: toEquipSlug(name),
+      count: data.items.length,
+      brands,
+      featuredCodes,
+    };
+  })
+  .sort((a, b) => b.count - a.count);
+
+const totalCodes = errorsDb.length;
+const totalBrands = allUniqueBrands.size;
+const totalCategories = categories.length;
+
+const canonicalUrl = 'https://gettinytool.com/directory/';
+const pageTitle = `Master Equipment & Brand Repair Directory (${totalBrands} Brands, ${totalCodes.toLocaleString()} Guides) | FixMyCode`;
+const pageDesc = `Browse all ${totalBrands} manufacturer brand hubs and ${totalCategories} equipment categories. Fast crawl index linking 3,581+ verified error codes, technical service manuals, and OEM replacement parts.`;
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://gettinytool.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Equipment & Brand Directory",
+      "item": canonicalUrl
+    }
+  ]
+};
+---
+
+<MainLayout title={pageTitle} description={pageDesc} canonicalUrl={canonicalUrl}>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  </Fragment>
+
+  <!-- Hero Section -->
+  <section class="bg-slate-900 text-white border-b border-slate-800 py-12 sm:py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Breadcrumbs -->
+      <nav class="flex items-center gap-2 text-xs font-mono text-slate-400 mb-4" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-amber-400 transition">Home</a>
+        <span>/</span>
+        <span class="text-amber-400">Equipment &amp; Brand Directory</span>
+      </nav>
+
+      <div class="space-y-4 max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-amber-400 text-xs font-mono font-medium">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>MASTER CRAWL INDEX • 100% COVERAGE</span>
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+          Equipment &amp; Brand <span class="text-amber-500">Service Directory</span>
+        </h1>
+        <p class="text-slate-400 text-base sm:text-lg leading-relaxed">
+          Centralized engineering index mapping {totalCodes.toLocaleString()} verified fault codes across {totalBrands} equipment manufacturers and {totalCategories} specialized machine categories.
+        </p>
+      </div>
+
+      <!-- Quick Stats Counter -->
+      <div class="mt-8 pt-8 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
+          <div class="text-2xl sm:text-3xl font-black font-mono text-amber-400">{totalCodes.toLocaleString()}</div>
+          <div class="text-xs font-mono text-slate-400 uppercase mt-0.5">Fault Guides</div>
+        </div>
+        <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
+          <div class="text-2xl sm:text-3xl font-black font-mono text-white">{totalBrands}</div>
+          <div class="text-xs font-mono text-slate-400 uppercase mt-0.5">Manufacturer Hubs</div>
+        </div>
+        <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
+          <div class="text-2xl sm:text-3xl font-black font-mono text-white">{totalCategories}</div>
+          <div class="text-xs font-mono text-slate-400 uppercase mt-0.5">Equipment Types</div>
+        </div>
+        <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
+          <div class="text-2xl sm:text-3xl font-black font-mono text-emerald-400">100%</div>
+          <div class="text-xs font-mono text-slate-400 uppercase mt-0.5">OEM Calibrated</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Category Jump Navigation -->
+  <nav class="sticky top-16 z-30 bg-white/95 backdrop-blur border-b border-slate-200 py-3 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <span class="text-xs font-mono font-bold text-slate-500 uppercase tracking-wider flex-shrink-0 mr-1">
+          Jump to:
+        </span>
+        {categories.slice(0, 16).map((cat) => (
+          <a
+            href={`#${cat.slug}`}
+            class="text-xs font-mono px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-amber-100 hover:text-amber-800 text-slate-700 whitespace-nowrap transition flex-shrink-0"
+          >
+            {cat.name} <span class="text-slate-400 font-normal">({cat.count})</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Directory Body -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+    {categories.map((cat, catIdx) => (
+      <section
+        id={cat.slug}
+        class="scroll-mt-24 p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-6"
+      >
+        <!-- Category Section Header -->
+        <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                #{catIdx + 1}
+              </span>
+              <h2 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+                {cat.name}
+              </h2>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500">
+              Technical troubleshooting manuals and parts lookup for {cat.name.toLowerCase()} equipment
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 font-mono text-xs">
+            <span class="px-2.5 py-1 rounded bg-amber-50 text-amber-800 border border-amber-200 font-semibold">
+              {cat.count} Error Codes
+            </span>
+            <span class="px-2.5 py-1 rounded bg-slate-100 text-slate-700">
+              {cat.brands.length} Brands
+            </span>
+          </div>
+        </div>
+
+        <!-- Brand Hub Pills -->
+        <div>
+          <h3 class="text-xs font-mono uppercase tracking-wider text-slate-500 mb-3">
+            Supported Manufacturer Hubs
+          </h3>
+          <div class="flex flex-wrap gap-2">
+            {cat.brands.map((b) => (
+              <a
+                href={`/${b.slug}/`}
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:border-amber-500 bg-slate-50 hover:bg-amber-50/60 transition group text-xs"
+              >
+                <span class="font-bold text-slate-800 group-hover:text-amber-700 transition">
+                  {b.name}
+                </span>
+                <span class="font-mono text-[10px] text-slate-500 group-hover:text-amber-600">
+                  ({b.count})
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Featured Error Code Guides -->
+        {cat.featuredCodes.length > 0 && (
+          <div>
+            <h3 class="text-xs font-mono uppercase tracking-wider text-slate-500 mb-3">
+              Featured {cat.name} Diagnostic Guides
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {cat.featuredCodes.map((fc) => {
+                const bSlug = fc.brand_slug || fc.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                return (
+                  <a
+                    href={`/${bSlug}/${fc.slug}/`}
+                    class="p-3.5 rounded-xl border border-slate-200 bg-white hover:border-amber-500 hover:shadow-xs transition group flex flex-col justify-between"
+                  >
+                    <div>
+                      <div class="flex items-center justify-between gap-1 mb-1">
+                        <span class="font-bold text-xs text-slate-900 group-hover:text-amber-600 transition truncate">
+                          {fc.brand}
+                        </span>
+                        <span class="inline-block px-1.5 py-0.5 rounded font-mono font-bold text-[11px] bg-slate-100 text-amber-700 border border-slate-200">
+                          {fc.error_code}
+                        </span>
+                      </div>
+                      <div class="text-xs font-medium text-slate-700 line-clamp-1 group-hover:text-slate-900 transition">
+                        {fc.short_symptom}
+                      </div>
+                      <div class="text-[11px] font-mono text-slate-400 mt-1 truncate">
+                        Part: {fc.primary_part_name}
+                      </div>
+                    </div>
+                    <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] font-mono text-slate-500">
+                      <span>OEM: {fc.oem_part_number}</span>
+                      <span class="text-amber-600 font-bold group-hover:translate-x-0.5 transition">Fix Guide &rarr;</span>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <!-- Bottom Jump Link -->
+        <div class="pt-2 text-right">
+          <a href="#top" class="text-[11px] font-mono text-slate-400 hover:text-amber-600 transition inline-flex items-center gap-1">
+            Back to top &uarr;
+          </a>
+        </div>
+      </section>
+    ))}
+  </main>
+</MainLayout>

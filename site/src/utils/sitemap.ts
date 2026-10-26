@@ -22,6 +22,14 @@ export function generateSitemapXml(): string {
   xml += `    <priority>1.0</priority>\n`;
   xml += `  </url>\n`;
 
+  // 1b. Master Directory Crawl Hub
+  xml += `  <url>\n`;
+  xml += `    <loc>${SITE_URL}/directory/</loc>\n`;
+  xml += `    <lastmod>${today}</lastmod>\n`;
+  xml += `    <changefreq>daily</changefreq>\n`;
+  xml += `    <priority>0.9</priority>\n`;
+  xml += `  </url>\n`;
+
   // 2. Brand hubs
   for (const b of Array.from(brandSlugs).sort()) {
     xml += `  <url>\n`;

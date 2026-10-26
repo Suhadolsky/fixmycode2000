@@ -24,23 +24,51 @@ export async function getStaticPaths() {
     const brandSlug = item.brand_slug || item.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     const slug = item.slug;
 
-    // 1. 8 related items within the same brand using circular modulo indexing
+    // 1. 6 related items within the same brand using circular modulo indexing
     const brandItems = brandGroups.get(item.brand) || [];
     const brandIdx = brandItems.findIndex((it) => it.slug === item.slug);
     const relatedErrors: any[] = [];
-    const brandCount = Math.min(8, brandItems.length - 1);
+    const brandCount = Math.min(6, brandItems.length - 1);
     for (let i = 1; i <= brandCount; i++) {
       relatedErrors.push(brandItems[(brandIdx + i) % brandItems.length]);
     }
 
-    // 2. 4 cross-brand items sharing the same equipment_type using circular modulo indexing
-    const crossBrandEquip = (equipGroups.get(item.equipment_type) || []).filter((it) => it.brand !== item.brand);
-    const candidateEquip = crossBrandEquip.length > 0 ? crossBrandEquip : (equipGroups.get(item.equipment_type) || []).filter((it) => it.slug !== item.slug);
+    // 2. 4 cross-brand items sharing the same equipment_type matched by component / symptom or circular modulo
+    const crossBrandCandidates = (equipGroups.get(item.equipment_type) || []).filter((it) => it.brand !== item.brand);
+    const candidates = crossBrandCandidates.length > 0 ? crossBrandCandidates : (equipGroups.get(item.equipment_type) || []).filter((it) => it.slug !== item.slug);
+
+    const stopWords = new Set(['error', 'code', 'fault', 'system', 'check', 'open', 'high', 'low', 'circuit', 'signal', 'sensor', 'unit']);
+    const itemKeywords = `${item.primary_part_name} ${item.short_symptom}`
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter((w) => w.length >= 4 && !stopWords.has(w));
+
+    const scoredCandidates = candidates.map((cand) => {
+      const text = `${cand.primary_part_name} ${cand.short_symptom}`.toLowerCase();
+      let score = 0;
+      for (const kw of itemKeywords) {
+        if (text.includes(kw)) score += 1;
+      }
+      return { cand, score };
+    });
+
+    scoredCandidates.sort((a, b) => b.score - a.score);
+
     const relatedCategoryErrors: any[] = [];
-    const equipCount = Math.min(4, candidateEquip.length);
+    for (const sc of scoredCandidates) {
+      if (sc.score > 0 && relatedCategoryErrors.length < 4) {
+        relatedCategoryErrors.push(sc.cand);
+      }
+    }
+
     const offset = brandIdx >= 0 ? brandIdx : 0;
-    for (let i = 0; i < equipCount; i++) {
-      relatedCategoryErrors.push(candidateEquip[(offset + i) % candidateEquip.length]);
+    let fillK = 0;
+    while (relatedCategoryErrors.length < Math.min(4, candidates.length) && fillK < candidates.length) {
+      const cand = candidates[(offset + fillK) % candidates.length];
+      if (!relatedCategoryErrors.some((it) => it.slug === cand.slug)) {
+        relatedCategoryErrors.push(cand);
+      }
+      fillK++;
     }
 
     return {
@@ -66,6 +94,7 @@ interface Props {
 const { errorItem, relatedErrors = [], relatedCategoryErrors = [] } = Astro.props;
 
 const brandSlug = errorItem.brand_slug || errorItem.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+const equipSlug = (errorItem.equipment_type || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'equipment';
 const canonicalUrl = `https://gettinytool.com/${brandSlug}/${errorItem.slug}/`;
 
 // FIX 3.2: High-intent long-tail SEO metadata including OEM Part Number
@@ -92,19 +121,20 @@ const h1Title = `${errorItem.brand} ${errorItem.model_series} Error Code ${error
       consumableName={errorItem.consumable_name}
       requiredToolName={errorItem.required_tool_name}
       faqQuestions={errorItem.faq_questions}
+      equipmentType={errorItem.equipment_type}
     />
   </Fragment>
 
   <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
     <!-- 1. Breadcrumbs (Above the Fold) -->
-    <nav class="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-500 mb-3">
+    <nav class="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-500 mb-3" aria-label="Breadcrumb">
       <a href="/" class="hover:text-amber-600 transition">Home</a>
       <span>&gt;</span>
-      <a href={`/${brandSlug}/`} class="hover:text-amber-600 transition">{errorItem.brand}</a>
+      <a href={`/directory/#${equipSlug}`} class="hover:text-amber-600 transition">{errorItem.equipment_type} Directory</a>
       <span>&gt;</span>
-      <span class="text-slate-700">{errorItem.equipment_type}</span>
+      <a href={`/${brandSlug}/`} class="hover:text-amber-600 transition">{errorItem.brand} Error Codes</a>
       <span>&gt;</span>
-      <span class="font-bold text-amber-700">Error {errorItem.error_code}</span>
+      <span class="font-bold text-amber-700">{errorItem.brand} {errorItem.error_code} Fix</span>
     </nav>
 
     <!-- 2. H1 Header (Above the Fold) -->
@@ -337,81 +367,107 @@ const h1Title = `${errorItem.brand} ${errorItem.model_series} Error Code ${error
       </section>
     )}
 
-    <!-- FIX 2: Ring Linking Section 4 (Same Brand - 8 Codes) -->
+    <!-- TASK 2.1: Circular Ring Linking Section 1 (Same-Brand / Same-Series Ring - 6 Links) -->
     {relatedErrors.length > 0 && (
       <section class="my-12 pt-8 border-t border-slate-200">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold text-slate-900">
-            More {errorItem.brand} Fault Codes &amp; Manuals
-          </h2>
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+              Related {errorItem.brand} {errorItem.model_series} Fault Codes &amp; Fixes
+            </h2>
+            <p class="text-xs text-slate-500">
+              Diagnostic procedures and OEM part numbers for sibling {errorItem.brand} error codes
+            </p>
+          </div>
           <a
             href={`/${brandSlug}/`}
-            class="text-xs font-mono text-amber-700 hover:text-amber-800 font-semibold"
+            class="text-xs font-mono text-amber-600 hover:text-amber-700 font-semibold transition"
           >
             View All {errorItem.brand} Guides &rarr;
           </a>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-          {relatedErrors.map((rel: any) => (
-            <a
-              href={`/${rel.brand_slug || brandSlug}/${rel.slug}/`}
-              class="p-4 rounded-xl border border-slate-200 bg-white hover:border-amber-500 hover:shadow-xs transition group flex flex-col justify-between"
-            >
-              <div>
-                <span class="inline-block px-2 py-0.5 rounded font-mono font-bold text-xs bg-slate-100 text-amber-700 group-hover:bg-amber-100 transition">
-                  {rel.error_code}
-                </span>
-                <h4 class="text-sm font-semibold text-slate-900 mt-2 line-clamp-1 group-hover:text-amber-600 transition">
-                  {rel.short_symptom}
-                </h4>
-              </div>
-              <span class="text-[11px] font-mono text-slate-500 mt-2 truncate">
-                {rel.model_series}
-              </span>
-            </a>
-          ))}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          {relatedErrors.map((rel: any) => {
+            const relBrandSlug = rel.brand_slug || rel.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            return (
+              <a
+                href={`/${relBrandSlug}/${rel.slug}/`}
+                class="p-4 rounded-xl border border-slate-200 bg-white hover:border-amber-500 hover:shadow-md transition group flex flex-col justify-between"
+              >
+                <div>
+                  <div class="flex items-center justify-between gap-1 mb-2">
+                    <span class="inline-block px-2 py-0.5 rounded font-mono font-bold text-xs bg-amber-50 text-amber-700 border border-amber-200 group-hover:bg-amber-100 transition">
+                      {rel.error_code}
+                    </span>
+                    <span class="text-[11px] font-mono text-slate-400 truncate max-w-[130px]">
+                      OEM: {rel.oem_part_number}
+                    </span>
+                  </div>
+                  <h3 class="text-sm font-semibold text-slate-900 line-clamp-1 group-hover:text-amber-600 transition">
+                    {rel.short_symptom}
+                  </h3>
+                  <p class="text-xs text-slate-500 line-clamp-1 mt-1 font-mono">
+                    Part: {rel.primary_part_name}
+                  </p>
+                </div>
+                <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
+                  <span class="truncate max-w-[150px]">{rel.model_series}</span>
+                  <span class="text-amber-600 font-bold group-hover:translate-x-0.5 transition">Fix &rarr;</span>
+                </div>
+              </a>
+            );
+          })}
         </div>
       </section>
     )}
 
-    <!-- FIX 2: Ring Linking Section 5 (Same Equipment Category - 4 Codes) -->
+    <!-- TASK 2.2: Cross-Brand Component / Symptom Links (4 Links) -->
     {relatedCategoryErrors.length > 0 && (
       <section class="my-12 pt-8 border-t border-slate-200">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div>
-            <h2 class="text-lg font-bold text-slate-900">
-              Related {errorItem.equipment_type} Fault Guides
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+              Similar {errorItem.equipment_type} Component Diagnostics
             </h2>
-            <p class="text-xs text-slate-500">Cross-manufacturer diagnostic guides for similar equipment</p>
+            <p class="text-xs text-slate-500">
+              Cross-manufacturer fault code guides and component tests for {errorItem.equipment_type.toLowerCase()}s
+            </p>
           </div>
-          <span class="text-xs font-mono bg-slate-100 text-slate-700 px-2.5 py-1 rounded">
-            {errorItem.equipment_type}
-          </span>
+          <a
+            href={`/directory/#${equipSlug}`}
+            class="text-xs font-mono bg-slate-100 text-slate-700 hover:bg-amber-100 hover:text-amber-800 px-2.5 py-1 rounded transition"
+          >
+            {errorItem.equipment_type} Directory &rarr;
+          </a>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {relatedCategoryErrors.map((rel: any) => {
             const relBrandSlug = rel.brand_slug || rel.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-');
             return (
               <a
                 href={`/${relBrandSlug}/${rel.slug}/`}
-                class="p-4 rounded-xl border border-slate-200 bg-white hover:border-amber-500 hover:shadow-xs transition group flex flex-col justify-between"
+                class="p-4 rounded-xl border border-slate-200 bg-white hover:border-amber-500 hover:shadow-md transition group flex flex-col justify-between"
               >
                 <div>
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="font-bold text-xs text-slate-900 group-hover:text-amber-600 transition">
+                  <div class="flex items-center justify-between gap-1 mb-1.5">
+                    <span class="font-bold text-xs text-slate-900 group-hover:text-amber-600 transition truncate">
                       {rel.brand}
                     </span>
-                    <span class="inline-block px-1.5 py-0.2 rounded font-mono font-bold text-[11px] bg-slate-100 text-amber-700">
+                    <span class="inline-block px-1.5 py-0.5 rounded font-mono font-bold text-[11px] bg-slate-100 text-amber-700 border border-slate-200">
                       {rel.error_code}
                     </span>
                   </div>
-                  <h4 class="text-xs text-slate-600 mt-2 line-clamp-2">
+                  <h3 class="text-xs font-medium text-slate-700 line-clamp-2 mb-1.5">
                     {rel.short_symptom}
-                  </h4>
+                  </h3>
+                  <div class="text-[11px] font-mono text-slate-500 truncate">
+                    {rel.primary_part_name}
+                  </div>
                 </div>
-                <span class="text-[10px] font-mono text-slate-400 mt-2 truncate">
-                  OEM: {rel.oem_part_number}
-                </span>
+                <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                  <span>OEM: {rel.oem_part_number}</span>
+                  <span class="text-amber-600 font-bold">Guide &rarr;</span>
+                </div>
               </a>
             );
           })}
